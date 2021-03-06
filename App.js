@@ -5,8 +5,7 @@ import store from "./src/redux/store";
 import { Text } from "react-native";
 import * as firebase from "firebase";
 import { firebaseConfig } from "./src/config/appConfig";
-import SplashScreen from "./src/screens/UnAuthScreens/SplashScreen";
-import UnAuthScreens from "./src/screens/UnAuthScreens";
+import AuthScreens from "./src/screens/AuthScreens";
 
 if (firebase.apps.length === 0) {
   firebase.initializeApp(firebaseConfig);
@@ -15,7 +14,7 @@ if (firebase.apps.length === 0) {
 export default function App() {
   return (
     <Provider store={store}>
-      <UnAuthScreens></UnAuthScreens>
+      <AuthScreens />
     </Provider>
   );
 }
