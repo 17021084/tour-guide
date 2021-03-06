@@ -9,7 +9,8 @@ import {
   JOURNEY_TRACK_SCREEN,
   PERSON_DETAIL_SCREEN,
   POST_SCREEN,
-} from "../screenName";
+} from "../ScreenName";
+
 import BottomTabScreens from "./BottomTabScreens";
 
 import PersonDetails from "./PersonDetails";

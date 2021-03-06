@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, Button } from "react-native";
-import { CAMERA_SCREEN } from "../../screenName";
+import { CAMERA_SCREEN } from "../../ScreenName";
 
 export default function JourneyTrack({ navigation }) {
   return (

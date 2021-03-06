@@ -4,7 +4,7 @@ import {
   BOOKMARK_SCREEN,
   HOME_SCREEN,
   JOURNEY_LIST_SCREEN,
-} from "../../screenName";
+} from "../../ScreenName";
 
 import Home from "./Home";
 import Bookmark from "./Bookmark";

@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, Button } from "react-native";
-import { JOURNEY_DETAIL_SCREEN, JOURNEY_TRACK_SCREEN } from "../../screenName";
+import { JOURNEY_DETAIL_SCREEN, JOURNEY_TRACK_SCREEN } from "../../ScreenName";
 
 export default function JourneyList({ navigation }) {
   return (

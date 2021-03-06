@@ -5,6 +5,7 @@ import store from "./src/redux/store";
 import * as firebase from "firebase";
 import { firebaseConfig } from "./src/config/appConfig";
 import AuthScreens from "./src/screens/AuthScreens";
+import UnAuthScreens from "./src/screens/UnAuthScreens";
 import { ActivityIndicator, View } from "react-native";
 import { useFonts } from "expo-font";
 
@@ -31,7 +32,7 @@ export default function App() {
 
   return (
     <Provider store={store}>
-      <AuthScreens />
+      <UnAuthScreens />
     </Provider>
   );
 }

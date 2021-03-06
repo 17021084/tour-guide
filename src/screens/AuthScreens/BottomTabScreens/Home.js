@@ -3,7 +3,8 @@ import { View, Text, Button } from "react-native";
 import ButtonBox from "../../../components/common/ButtonBox";
 import HoriLine from "../../../components/common/HoriLine";
 import InputBox from "../../../components/common/InputBox";
-import { PERSON_DETAIL_SCREEN } from "../../screenName";
+import Logo from "../../../components/Logo";
+import { PERSON_DETAIL_SCREEN } from "../../ScreenName";
 
 export default function Home({ navigation }) {
   return (
@@ -21,7 +22,7 @@ export default function Home({ navigation }) {
           navigation.navigate(PERSON_DETAIL_SCREEN);
         }}
       />
-
+      <Logo />
       <InputBox />
 
       <HoriLine></HoriLine>

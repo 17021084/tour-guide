@@ -13,13 +13,13 @@ import SignUp from "./SignUp";
 const Stack = createStackNavigator();
 
 const screenOptions = {
-  headerShown: true,
+  headerShown: false,
 };
 
 export default function UnAuthScreens() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName={SPLASH_SWIPER_SCREEN}>
+      <Stack.Navigator initialRouteName={SIGN_UP_SCREEN}>
         <Stack.Screen
           name={SPLASH_SWIPER_SCREEN}
           component={SplashScreen}
