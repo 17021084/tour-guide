@@ -14,10 +14,9 @@ import ButtonBox from "../../components/common/ButtonBox";
 import InputBox from "../../components/common/InputBox";
 import { color } from "../../config/appConfig";
 import { validateEmail } from "../../utils/validateEmail";
-// will be remove in fuuture
-import { Button } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
-
+import firebase from "firebase";
+import "firebase/firestore";
 export default function SignIn({ navigation }) {
   const [error, setError] = useState(null);
   const [data, setData] = useState({
@@ -35,12 +34,36 @@ export default function SignIn({ navigation }) {
   };
 
   const signIn = () => {
-    if (!validateEmail(data.email)) {
+    const { email, password } = data;
+    if (!validateEmail(email)) {
       setError("email ko chính xác");
     }
-    if (data.password.length < 6) {
+    if (password.length < 6) {
       setError("Mật khẩu không < 6 ký tự");
     }
+    firebase
+      .auth()
+      .signInWithEmailAndPassword(email, password)
+      .then((result) => {
+        console.log(result);
+      })
+      .catch((error) => {
+        switch (error.code) {
+          case "auth/user-not-found":
+            setError("Tài khoản không tồn tại");
+            break;
+          case "auth/wrong-password":
+            setError("Mật khẩu ko chính xác ");
+            break;
+          case "auth/too-many-requests":
+            setError("Tài khoản tạm thời bị khoá do đăng nhập quá nhiều ");
+            break;
+          default:
+            setError("Lỗi mạng ");
+            break;
+        }
+        console.log(error);
+      });
   };
   return (
     <KeyboardAvoidingView
@@ -122,7 +145,7 @@ const styles = StyleSheet.create({
     paddingTop: 3,
   },
   signUpText: {
-    color: color.orange,
+    color: color.green,
     fontWeight: "900",
   },
   input: {

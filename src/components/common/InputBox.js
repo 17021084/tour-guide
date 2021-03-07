@@ -19,7 +19,7 @@ export default function InputBox({
         onChangeText={onChangeText}
         style={styles.input}
         value={value}
-        autoCapitalize={false}
+        autoCapitalize={"none"}
       />
     </View>
   );
