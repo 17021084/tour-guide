@@ -7,3 +7,10 @@ export const firebaseConfig = {
   appId: "1:383628957928:web:81f477dcf095ba8fd7115d",
   measurementId: "G-KBCSG9YQD1",
 };
+
+export const color = {
+  aqua: "#6DDCCF",
+  green: "#95B869",
+  pink: "#FF75A0",
+  orange: "#FFCB91",
+};

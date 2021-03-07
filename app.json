@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "tour-guide",
-    "slug": "tour-guide",
+    "name": "Tour guide",
+    "slug": "tour-guide-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

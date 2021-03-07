@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, Button } from "react-native";
-import { POST_SCREEN } from "../../screenName";
+import { POST_SCREEN } from "../../ScreenName";
 
 export default function Camera({ navigation }) {
   return (

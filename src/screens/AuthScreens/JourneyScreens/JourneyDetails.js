@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, Button } from "react-native";
-import { PERSON_DETAIL_SCREEN } from "../../screenName";
+import { PERSON_DETAIL_SCREEN } from "../../ScreenName.js";
 
 export default function JourneyDetails({ navigation }) {
   return (
