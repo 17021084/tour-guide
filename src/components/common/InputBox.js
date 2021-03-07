@@ -1,12 +1,13 @@
 import React from "react";
-import { View, Text, TextInput, StyleSheet } from "react-native";
-import HoriLine from "./HoriLine";
+import { View, Text, TextInput, StyleSheet, Dimensions } from "react-native";
+const width = Dimensions.get("window").width;
 
 export default function InputBox({
   title = "Input",
   placeholder = "placeholder",
   secureTextEntry = false,
   onChangeText,
+  value,
 }) {
   return (
     <View style={styles.container}>
@@ -17,8 +18,9 @@ export default function InputBox({
         secureTextEntry={secureTextEntry}
         onChangeText={onChangeText}
         style={styles.input}
+        value={value}
+        autoCapitalize={false}
       />
-      <HoriLine />
     </View>
   );
 }
@@ -26,18 +28,18 @@ export default function InputBox({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    width: width * 0.7,
+    marginVertical: 10,
   },
   title: {
     fontFamily: "open-sans",
     fontSize: 18,
     fontWeight: "500",
-    marginVertical: 5,
+    marginVertical: 2,
   },
   input: {
-    borderRadius: 30,
-    borderWidth: 1,
+    borderBottomWidth: 1,
     padding: 10,
-    marginTop: 10,
-    marginBottom: 20,
+    marginTop: 5,
   },
 });

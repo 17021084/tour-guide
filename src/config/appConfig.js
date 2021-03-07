@@ -10,7 +10,7 @@ export const firebaseConfig = {
 
 export const color = {
   aqua: "#6DDCCF",
-  green: "#EAFFD0",
+  green: "#95B869",
   pink: "#FF75A0",
   orange: "#FFCB91",
 };
