@@ -19,7 +19,7 @@ const screenOptions = {
 export default function UnAuthScreens() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName={SIGN_IN_SCREEN}>
+      <Stack.Navigator initialRouteName={SPLASH_SWIPER_SCREEN}>
         <Stack.Screen
           name={SPLASH_SWIPER_SCREEN}
           component={SplashScreen}

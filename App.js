@@ -20,6 +20,17 @@ export default function App() {
     "open-sans-Italic": require("./assets/fonts/OpenSans-Italic.ttf"),
   });
 
+  const [isLogin, setIsLogin] = useState(false);
+
+  useEffect(() => {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        setIsLogin(true);
+      } else {
+        setIsLogin(false);
+      }
+    });
+  }, []);
   if (!isLoadFont) {
     return (
       <View
@@ -29,10 +40,13 @@ export default function App() {
       </View>
     );
   }
-
-  return (
-    <Provider store={store}>
-      <UnAuthScreens />
-    </Provider>
-  );
+  if (!isLogin) {
+    return <UnAuthScreens />;
+  } else {
+    return (
+      <Provider store={store}>
+        <AuthScreens />
+      </Provider>
+    );
+  }
 }

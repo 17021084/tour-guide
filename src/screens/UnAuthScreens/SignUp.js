@@ -10,6 +10,8 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
+import firebase from "firebase";
+import "firebase/firestore";
 
 import logo from "../../../assets/icon.png";
 import ButtonBox from "../../components/common/ButtonBox";
@@ -45,17 +47,37 @@ export default function SignUp({ navigation }) {
   };
 
   const signUp = () => {
-    if (!validateEmail(data.email)) {
-      setError("email ko chính xác");
-    }
+    const { email, password, name, retypePassword } = data;
 
-    if (data.retypePassword !== data.password) {
+    if (!validateEmail(email)) {
+      setError("email ko chính xác");
+      return;
+    }
+    if (retypePassword !== password) {
       setError("Mật khẩu nhập lại ko chính xác");
       return;
     }
-    if (data.password.length < 6) {
+    if (password.length < 6) {
       setError("Mật khẩu không < 6 ký tự");
+      return;
     }
+    firebase
+      .auth()
+      .createUserWithEmailAndPassword(email, password)
+      .then((result) => {
+        //save new user into user collection
+        firebase
+          .firestore()
+          .collection("users")
+          .doc(firebase.auth().currentUser.uid)
+          .set({
+            email,
+            name,
+          });
+      })
+      .catch((error) => {
+        setError("tài khoản đã đc đăng ký ");
+      });
   };
 
   return (
@@ -139,6 +161,6 @@ const styles = StyleSheet.create({
   },
   backText: {
     color: color.green,
-    fontWeight:"900"
+    fontWeight: "900",
   },
 });
