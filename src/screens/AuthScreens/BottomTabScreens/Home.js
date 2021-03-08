@@ -7,6 +7,14 @@ import Logo from "../../../components/Logo";
 import { PERSON_DETAIL_SCREEN } from "../../ScreenName";
 
 export default function Home({ navigation }) {
+  
+  const []
+  // logic lay current state 
+
+
+  //map dispach va state tu redux  
+
+  
   return (
     <View>
       <Text>Home Screen </Text>
