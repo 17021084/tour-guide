@@ -7,7 +7,7 @@ export const SPLASH_SWIPER_SCREEN = "SPLASH_SWIPER_SCREEN";
 export const PERSON_DETAIL_SCREEN = "Person details";
 
 // Bottom Tab Screen
-export const BOTTOM_TAB_SCREEN = "Bottom Tab";
+export const BOTTOM_TAB_SCREEN = "Màn hình chính";
 export const HOME_SCREEN = "Home";
 export const BOOKMARK_SCREEN = "Bookmark";
 export const JOURNEY_LIST_SCREEN = "Journey List";
