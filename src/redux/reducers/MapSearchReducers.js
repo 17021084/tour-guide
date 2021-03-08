@@ -8,8 +8,8 @@ const initializeState = {
   region: {
     latitude: 21.0281465,
     longitude: 105.7882117,
-    latitudeDelta: 0.005,
-    longitudeDelta: 0.005,
+    latitudeDelta: 0.008,
+    longitudeDelta: 0.008,
   },
   marker: {
     latitude: 21.0281465,

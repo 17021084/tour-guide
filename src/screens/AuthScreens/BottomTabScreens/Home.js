@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, Button, StyleSheet } from "react-native";
 import { connect } from "react-redux";
 import ButtonBox from "../../../components/common/ButtonBox";
@@ -6,18 +6,37 @@ import ButtonIcon from "../../../components/common/ButtonIcon";
 import HoriLine from "../../../components/common/HoriLine";
 import InputBox from "../../../components/common/InputBox";
 import Logo from "../../../components/Logo";
+import * as Location from "expo-location";
 import MapSearch from "../../../components/MapSearch";
 import { PERSON_DETAIL_SCREEN } from "../../ScreenName";
-
-import { regionSearchChange } from "../../../redux/actions";
+import { regionSearchChange, markerSearchChange } from "../../../redux/actions";
 
 import { color } from "../../../config/appConfig";
 
-function Home({ navigation, regionSearchChange, region, marker }) {
-  // const []
-  // logic lay current state
+function Home({
+  navigation,
+  regionSearchChange,
+  markerSearchChange,
+  region,
+  marker,
+}) {
+  const [errorMsg, setErrorMsg] = useState(null);
 
-  //map dispach va state tu redux
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestPermissionsAsync();
+      if (status !== "granted") {
+        setErrorMsg("Permission to access location was denied");
+        return;
+      }
+    })();
+  }, []);
+
+  const setMarkerToCurrentLocation = async () => {
+    let location = await Location.getCurrentPositionAsync({});
+    let { latitude, longitude } = location.coords;
+    markerSearchChange({ latitude, longitude });
+  };
 
   const currentMarker = () => {
     const newRegion = {
@@ -32,13 +51,6 @@ function Home({ navigation, regionSearchChange, region, marker }) {
     <View>
       <MapSearch />
       <View style={styles.buttonBox}>
-        <ButtonIcon name="my-location" size={50} color={color.aqua} />
-        <ButtonIcon
-          onPress={currentMarker}
-          name="not-listed-location"
-          size={50}
-          color={color.aqua}
-        />
         <ButtonIcon
           onPress={() => {
             navigation.navigate(PERSON_DETAIL_SCREEN);
@@ -47,28 +59,28 @@ function Home({ navigation, regionSearchChange, region, marker }) {
           size={50}
           color={color.aqua}
         />
+        <ButtonIcon
+          onPress={setMarkerToCurrentLocation}
+          name="my-location"
+          size={50}
+          color={color.aqua}
+        />
+        <ButtonIcon
+          onPress={currentMarker}
+          name="not-listed-location"
+          size={50}
+          color={color.aqua}
+        />
       </View>
     </View>
   );
 }
-// <Button
-// title={" Person Detail"}
-// onPress={() => {
-//   navigation.navigate(PERSON_DETAIL_SCREEN);
-// }}
-// />
-
-// <ButtonBox
-
-// />
 
 const styles = StyleSheet.create({
   container: {},
-
   buttonBox: {
-    flexDirection: "row",
     position: "absolute",
-    bottom: 100,
+    bottom: 80,
   },
 });
 
@@ -78,4 +90,7 @@ const mapStateToProps = (state) => {
     marker: state.searchState.marker,
   };
 };
-export default connect(mapStateToProps, { regionSearchChange })(Home);
+export default connect(mapStateToProps, {
+  markerSearchChange,
+  regionSearchChange,
+})(Home);
