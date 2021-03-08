@@ -1,4 +1,8 @@
-import { REGION_CHANGE } from "../actions/type";
+import {
+  REGION_SEARCH_CHANGE,
+  MARKER_SEARCH_CHANGE,
+  STREET_SEARCH_CHANGE,
+} from "../actions/type";
 
 const initializeState = {
   region: {
@@ -16,15 +20,14 @@ const initializeState = {
 
 export default (state = initializeState, action) => {
   switch (action.type) {
-    case REGION_CHANGE:
-      return 
-    case REGION_CHANGE:
-      return 
-    case REGION_CHANGE:
-      return 
+    case REGION_SEARCH_CHANGE:
+      console.log(REGION_SEARCH_CHANGE);
+      return { ...state, region: action.payload };
+    case MARKER_SEARCH_CHANGE:
+      return { ...state, marker: action.payload };
+    case STREET_SEARCH_CHANGE:
+      return { ...state, street_name: action.payload };
     default:
-      break;
+      return state;
   }
-
-  return {};
 };
