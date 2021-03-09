@@ -19,19 +19,21 @@ export default function App() {
     "open-sans-bold": require("./assets/fonts/OpenSans-Bold.ttf"),
     "open-sans-Italic": require("./assets/fonts/OpenSans-Italic.ttf"),
   });
-
+  const [loaded, setLoaded] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
 
   useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         setIsLogin(true);
+        setLoaded(true);
       } else {
         setIsLogin(false);
+        setLoaded(true);
       }
     });
   }, []);
-  if (!isLoadFont) {
+  if (!isLoadFont || !loaded) {
     return (
       <View
         style={{ flex: 1, justifyContent: "center", alignContent: "center" }}
@@ -42,11 +44,10 @@ export default function App() {
   }
   if (!isLogin) {
     return <UnAuthScreens />;
-  } else {
-    return (
-      <Provider store={store}>
-        <AuthScreens />
-      </Provider>
-    );
   }
+  return (
+    <Provider store={store}>
+      <AuthScreens />
+    </Provider>
+  );
 }
