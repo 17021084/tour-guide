@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { View, Text } from "react-native";
+import { View, Text, ActivityIndicator } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import {
@@ -24,11 +24,20 @@ import { fetchBookmark } from "../../redux/actions/UserAction";
 const Stack = createStackNavigator();
 const headerOption = { headerShown: true };
 
-function AuthScreens({ fetchBookmark }) {
+function AuthScreens({ fetchBookmark, bookmarkLoaded }) {
   useEffect(() => {
     fetchBookmark();
   }, []);
 
+  if (!bookmarkLoaded) {
+    return (
+      <View
+        style={{ flex: 1, justifyContent: "center", alignContent: "center" }}
+      >
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName={BOTTOM_TAB_SCREEN}>
@@ -66,5 +75,9 @@ function AuthScreens({ fetchBookmark }) {
     </NavigationContainer>
   );
 }
-
-export default connect(null, { fetchBookmark })(AuthScreens);
+const mapStateToProps = (state) => {
+  return {
+    bookmarkLoaded: state.userState.bookmarkLoaded,
+  };
+};
+export default connect(mapStateToProps, { fetchBookmark })(AuthScreens);

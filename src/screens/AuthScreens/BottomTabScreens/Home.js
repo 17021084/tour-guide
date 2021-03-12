@@ -56,33 +56,6 @@ function Home({
   //   console.log(data);
   // };
 
-  const testFetch = async () => {
-    // let doc = await firebase
-    firebase
-      .firestore()
-      .collection("bookmarks")
-      .doc(firebase.auth().currentUser.uid)
-      .collection("listBookmarks")
-      .get()
-      .then((snapshot) => {
-        var data = snapshot.docs.map((doc) => {
-          return doc.data();
-        });
-        console.log("================data ");
-        console.log(data);
-      });
-
-    // if (!doc.exists) {
-    //   console.log("No such document!");
-    // } else {
-    //   var bm = doc.docs.map((item) => {
-    //     return item.id;
-    //   });
-    //   console.log(bm);
-    //   // console.log("Document data:", doc.docs);
-    // }
-  };
-
   return (
     <View>
       <MapSearch />
@@ -99,12 +72,6 @@ function Home({
             color={color.aqua}
           />
         ) : null}
-        <ButtonIcon
-          onPress={testFetch}
-          name="my-location"
-          size={50}
-          color={color.aqua}
-        />
         <ButtonIcon
           onPress={setMarkerToCurrentLocation}
           name="my-location"

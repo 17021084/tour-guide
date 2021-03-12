@@ -17,8 +17,7 @@ function Bookmark({ bookmarkList, navigation }) {
     </TouchableOpacity>
   );
   return (
-    <View>
-      <Button title={" Person Detail"} />
+    <View style={styles.container}>
       <FlatList
         data={bookmarkList}
         renderItem={renderBookmardCard}
@@ -36,6 +35,9 @@ const mapStateToProps = (state, ownProps) => {
 export default connect(mapStateToProps)(Bookmark);
 
 const styles = StyleSheet.create({
+  container: {
+    paddingTop: 50,
+  },
   card: {
     marginHorizontal: 10,
     marginVertical: 10,
