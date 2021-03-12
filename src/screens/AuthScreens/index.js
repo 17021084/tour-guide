@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -18,11 +18,17 @@ import Camera from "./JourneyScreens/Camera";
 import Post from "./JourneyScreens/Post";
 import JourneyTrack from "./JourneyScreens/JourneyTrack";
 import JourneyDetails from "./JourneyScreens/JourneyDetails";
+import { connect } from "react-redux";
+import { fetchBookmark } from "../../redux/actions/UserAction";
 
 const Stack = createStackNavigator();
 const headerOption = { headerShown: true };
 
-export default function AuthScreens() {
+function AuthScreens({ fetchBookmark }) {
+  useEffect(() => {
+    fetchBookmark();
+  }, []);
+
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName={BOTTOM_TAB_SCREEN}>
@@ -60,3 +66,5 @@ export default function AuthScreens() {
     </NavigationContainer>
   );
 }
+
+export default connect(null, { fetchBookmark })(AuthScreens);

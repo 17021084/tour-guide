@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { color } from "../../config/appConfig";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
-export default function ButtonBox({
+export default function ButtonIcon({
   name,
   size = 50,
   color = "black",
