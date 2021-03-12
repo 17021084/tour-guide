@@ -7,7 +7,7 @@ import { connect } from "react-redux";
 import { markerSearchChange } from "../redux/actions";
 const height = Dimensions.get("window").height;
 
-const MapSearch = ({ region, marker, markerSearchChange }) => {
+const MapSearch = ({ region, marker, markerSearchChange, streetName }) => {
   const onDragEnd = (e) => {
     const coord = e.nativeEvent.coordinate;
     console.log(`cooord  ${coord.latitude}  ${coord.longitude}`);
@@ -15,14 +15,14 @@ const MapSearch = ({ region, marker, markerSearchChange }) => {
     // logic trong dispatch . kiểm tra xem marker có nằm trong region ko . ( có thì update region)
     //cập nhâp marker
   };
-
   return (
     <MapView style={styles.map} loadingEnabled={true} region={region}>
       <MapView.Marker
         draggable
         coordinate={marker}
-        title={"Toạ độ hiện tại "}
-        description={`kinh độ (long): ${marker.longitude} Vĩ độ (Lati): ${marker.latitude} `}
+        title={"Địa chỉ"}
+        description={streetName}
+        onDragS
         onDragEnd={onDragEnd}
       ></MapView.Marker>
     </MapView>
@@ -33,6 +33,7 @@ const mapStateToProps = (state) => {
   return {
     region: state.searchState.region,
     marker: state.searchState.marker,
+    streetName: state.searchState.streetName,
   };
 };
 export default connect(mapStateToProps, { markerSearchChange })(MapSearch);
