@@ -91,7 +91,7 @@ function Home({
         {person ? (
           <ButtonIcon
             onPress={() => {
-              navigation.navigate(PERSON_DETAIL_SCREEN);
+              navigation.navigate(PERSON_DETAIL_SCREEN, { person });
             }}
             // onPress={getAddress}
             name="location-history"
