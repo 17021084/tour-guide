@@ -10,8 +10,9 @@ import { color } from "../../config/appConfig";
 import * as firebase from "firebase";
 import { addBookmark, deleteBookmark } from "../../redux/actions/UserAction";
 
-function PersonDetails({ person, deleteBookmark, bookmarkList, addBookmark }) {
+function PersonDetails({ route,deleteBookmark, bookmarkList, addBookmark }) {
   const [isBooked, setIsBooked] = useState();
+  const {person} = route.params
   useEffect(() => {
     let exsist = false;
     for (let i = 0; i < bookmarkList.length; ++i) {
@@ -197,7 +198,6 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = (state) => {
   return {
-    person: state.searchState.person,
     bookmarkList: state.userState.bookmark,
   };
 };
