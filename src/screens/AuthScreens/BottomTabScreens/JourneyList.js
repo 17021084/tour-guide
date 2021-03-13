@@ -6,6 +6,12 @@ export default function JourneyList({ navigation }) {
   return (
     <View>
       <Text>Journey List screen</Text>
+      <Text>Journey List screen</Text>
+      <Text>Journey List screen</Text>
+      <Text>Journey List screen</Text>
+      <Text>Journey List screen</Text>
+      <Text>Journey List screen</Text>
+      <Text>Journey List screen</Text>
 
       <Button
         title={"Tracking"}
