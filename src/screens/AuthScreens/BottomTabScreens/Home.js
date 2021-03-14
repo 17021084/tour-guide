@@ -5,7 +5,6 @@ import ButtonBox from "../../../components/common/ButtonBox";
 import ButtonIcon from "../../../components/common/ButtonIcon";
 import HoriLine from "../../../components/common/HoriLine";
 import InputBox from "../../../components/common/InputBox";
-import Logo from "../../../components/Logo";
 import * as Location from "expo-location";
 import MapSearch from "../../../components/MapSearch";
 import { PERSON_DETAIL_SCREEN } from "../../ScreenName";
@@ -40,7 +39,14 @@ function Home({
     let location = await Location.getCurrentPositionAsync({});
     let { latitude, longitude } = location.coords;
     markerSearchChange({ latitude, longitude });
+  
   };
+
+  const reverseGeoCode = async()=>{
+      let address = await Location.reverseGeocodeAsync(marker);
+    console.log(address);
+  }
+
 
   const currentMarker = () => {
     const newRegion = {
@@ -72,6 +78,13 @@ function Home({
             color={color.aqua}
           />
         ) : null}
+        <ButtonIcon
+          onPress={reverseGeoCode}
+          name="my-location"
+          size={50}
+          color={color.green}
+        />
+        
         <ButtonIcon
           onPress={setMarkerToCurrentLocation}
           name="my-location"

@@ -11,7 +11,7 @@ export default function JourneyList({ navigation }) {
       <Text>Journey List screen</Text>
       <Text>Journey List screen</Text>
       <Text>Journey List screen</Text>
-      <Text>Journey List screen</Text>
+      <Text>Modal  hien ra </Text>
 
       <Button
         title={"Tracking"}
