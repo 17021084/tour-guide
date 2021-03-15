@@ -16,9 +16,11 @@ export const fetchJourneyList = () => {
 };
 
 export const changeTrackingStatus = (status) => {
-  return {
-    type: TRACKING_STATUS_CHANGE,
-    payload: status,
+  return (dispatch) => {
+    dispatch({
+      type: TRACKING_STATUS_CHANGE,
+      payload: status,
+    });
   };
 };
 
@@ -29,9 +31,11 @@ export const changeCurrentJourneyName = (name) => {
   };
 };
 
-export const changeCurrentJournyPointList = (point) => {
-  return {
-    type: CURRENT_JOURNEY_POINTS_LIST_CHANGE,
-    payload: point,
+export const changeCurrentJourneyPointList = (pointList) => {
+  return (dispatch) => {
+    dispatch({
+      type: CURRENT_JOURNEY_POINTS_LIST_CHANGE,
+      payload: pointList,
+    });
   };
 };

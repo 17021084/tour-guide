@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, Button } from "react-native";
-import { JOURNEY_DETAIL_SCREEN, JOURNEY_TRACK_SCREEN } from "../../ScreenName";
+import { JOURNEY_DETAIL_SCREEN } from "../../ScreenName";
 
 export default function JourneyList({ navigation }) {
   return (
@@ -11,14 +11,7 @@ export default function JourneyList({ navigation }) {
       <Text>Journey List screen</Text>
       <Text>Journey List screen</Text>
       <Text>Journey List screen</Text>
-      <Text>Modal  hien ra </Text>
-
-      <Button
-        title={"Tracking"}
-        onPress={() => {
-          navigation.navigate(JOURNEY_TRACK_SCREEN);
-        }}
-      />
+      <Text>Modal hien ra </Text>
 
       <Button
         title={" Journey Detail"}

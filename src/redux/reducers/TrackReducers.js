@@ -4,6 +4,7 @@ import {
   FETCH_JOURNEY_LIST,
   TRACKING_STATUS_CHANGE,
   JOURNEY_RESET,
+  UPDATE_JOURNEY_LIST,
 } from "../actions/type";
 
 const initializeState = {
@@ -23,7 +24,7 @@ const initializeState = {
     ],
   },
 
-  trackingStatus: "start", //start, going, stop,end
+  trackingStatus: false, //going : true ,false. stop
   journeyList: [],
 };
 
@@ -32,20 +33,26 @@ const initializeState = {
 export default (state = initializeState, action) => {
   switch (action.type) {
     case JOURNEY_RESET:
-      return { ...state, trackingStatus: "start", currentJourney: {} };
-    case FETCH_JOURNEY_LIST:
+      return { ...state, trackingStatus: false, currentJourney: {} };
+    case UPDATE_JOURNEY_LIST:
       return { ...state, journeyList: action.payload };
     case TRACKING_STATUS_CHANGE:
       return { ...state, trackingStatus: action.payload };
     case CURRENT_JOURNEY_NAME_CHANGE:
       return {
         ...state,
-        currentJourney: { ...currentJourney, journeyPoint: action.payload },
+        currentJourney: {
+          ...state.currentJourney,
+          journeyName: action.payload,
+        },
       };
     case CURRENT_JOURNEY_POINTS_LIST_CHANGE:
       return {
         ...state,
-        currentJourney: { ...currentJourney, pointList: action.payload },
+        currentJourney: {
+          ...state.currentJourney,
+          pointList: [...state.currentJourney.pointList, action.payload],
+        },
       };
     default:
       return state;
