@@ -10,7 +10,7 @@ import {
   Pressable,
 } from "react-native";
 import { connect } from "react-redux";
-import { CAMERA_SCREEN } from "../../ScreenName";
+import { CAMERA_SCREEN, PERSON_DETAIL_SCREEN } from "../../ScreenName";
 import * as TaskManager from "expo-task-manager";
 import {
   changeCurrentJourneyName,
@@ -180,7 +180,13 @@ function JourneyTrack({
       <Button title={"tắt record"} onPress={stopRecord} />
       <Button title={"kết thúc hành trình"} onPress={saveJourney} />
       <Button
-        title={" Person Detail"}
+        title={"Chi tiết người đó "}
+        onPress={() => {
+          // navigation.navigate(PERSON_DETAIL_SCREEN, {person:null});
+        }}
+      />
+      <Button
+        title={"Chụp Ảnh"}
         onPress={() => {
           navigation.navigate(CAMERA_SCREEN);
         }}

@@ -14,7 +14,7 @@ import {
 import BottomTabScreens from "./BottomTabScreens";
 
 import PersonDetails from "./PersonDetails";
-import Camera from "./JourneyScreens/Camera";
+import AddPicture from "./JourneyScreens/AddPicture";
 import Post from "./JourneyScreens/Post";
 import JourneyDetails from "./JourneyScreens/JourneyDetails";
 import { connect } from "react-redux";
@@ -57,7 +57,7 @@ function AuthScreens({ fetchBookmark, bookmarkLoaded }) {
         />
         <Stack.Screen
           name={CAMERA_SCREEN}
-          component={Camera}
+          component={AddPicture}
           options={headerOption}
         />
         <Stack.Screen
