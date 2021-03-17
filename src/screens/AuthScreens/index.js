@@ -14,9 +14,8 @@ import {
 import BottomTabScreens from "./BottomTabScreens";
 
 import PersonDetails from "./PersonDetails";
-import Camera from "./JourneyScreens/Camera";
+import AddPicture from "./JourneyScreens/AddPicture";
 import Post from "./JourneyScreens/Post";
-import JourneyTrack from "./JourneyScreens/JourneyTrack";
 import JourneyDetails from "./JourneyScreens/JourneyDetails";
 import { connect } from "react-redux";
 import { fetchBookmark } from "../../redux/actions/UserAction";
@@ -52,18 +51,13 @@ function AuthScreens({ fetchBookmark, bookmarkLoaded }) {
           options={headerOption}
         />
         <Stack.Screen
-          name={JOURNEY_TRACK_SCREEN}
-          component={JourneyTrack}
-          options={headerOption}
-        />
-        <Stack.Screen
           name={JOURNEY_DETAIL_SCREEN}
           component={JourneyDetails}
           options={headerOption}
         />
         <Stack.Screen
           name={CAMERA_SCREEN}
-          component={Camera}
+          component={AddPicture}
           options={headerOption}
         />
         <Stack.Screen
