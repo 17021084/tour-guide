@@ -1,5 +1,6 @@
 import geoAPI from "../../api/geoApi";
 import ontologyApi from "../../api/ontologyApi";
+import filterStreetName from "../../utils/filterStreetName";
 import { updateRegion } from "../../utils/updateRegion";
 import {
   MARKER_SEARCH_CHANGE,
@@ -8,13 +9,11 @@ import {
   STREET_SEARCH_CHANGE,
 } from "./type";
 
-export const markerSearchChange = (marker) => {
+export const searchStreet = (address) => {
   return async (dispatch, getState) => {
-    dispatch({
-      payload: marker,
-      type: MARKER_SEARCH_CHANGE,
-    });
-
+    const { marker, streetName } = address;
+    dispatch(markerSearchChange(marker));
+    dispatch(streetSearchChange(streetName));
     // bug do chua tinh toan dc dental l
     // const newRegion = updateRegion(marker, getState().searchState.region);
     // if (newRegion) {
@@ -28,12 +27,9 @@ export const markerSearchChange = (marker) => {
     dispatch(regionSearchChange(newRegion));
 
     try {
-      const street = await geoAPI(marker);
-      dispatch(streetSearchChange(street.staddress));
-
-      const person = await ontologyApi(street.staddress);
-      console.log("address");
-      console.log(street.staddress);
+      let streetname = filterStreetName(streetName);
+      console.log(streetname)
+      const person = await ontologyApi(streetname);
       if (!person) {
         dispatch(personSearchChange(null));
         return;
@@ -45,13 +41,20 @@ export const markerSearchChange = (marker) => {
   };
 };
 
+export const markerSearchChange = (marker) => {
+  return {
+    payload: marker,
+    type: MARKER_SEARCH_CHANGE,
+  };
+};
+
 export const regionSearchChange = (region) => {
   return {
     payload: region,
     type: REGION_SEARCH_CHANGE,
   };
 };
-const streetSearchChange = (street) => {
+export const streetSearchChange = (street) => {
   return {
     payload: street,
     type: STREET_SEARCH_CHANGE,
