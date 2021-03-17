@@ -22,9 +22,19 @@ import {
 import InputBox from "../../../components/common/InputBox.js";
 import MapView from "react-native-maps";
 import { updateRegion } from "../../../utils/updateRegion";
+import Constants from "expo-constants";
+import * as Notifications from "expo-notifications";
 
 const TRACKING_INTERVAL = 20 * 1000; // 10s
 const DISTANCE_INTERVAL = 0; // meters
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
 
 function JourneyTrack({
   navigation,
@@ -36,6 +46,56 @@ function JourneyTrack({
   changeCurrentJourneyName,
   changeCurrentJourneyPointList,
 }) {
+  const [currentJourneyName, setCurrentJourneyName] = useState(journeyName);
+  const [region, setRegion] = useState({});
+
+  //notification
+  const [expoPushToken, setExpoPushToken] = useState("");
+  const [notification, setNotification] = useState(false);
+  const notificationListener = useRef();
+  const responseListener = useRef();
+
+  useEffect(() => {
+    registerForPushNotificationsAsync().then((token) =>
+      setExpoPushToken(token)
+    );
+
+    notificationListener.current = Notifications.addNotificationReceivedListener(
+      (notification) => {
+        setNotification(notification);
+      }
+    );
+
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(
+      (response) => {
+        console.log(response);
+      }
+    );
+
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener);
+      Notifications.removeNotificationSubscription(responseListener);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (pointList.length == 0) {
+      setRegion({
+        latitude: "37.32837938",
+        longitude: "-122.02686219",
+        latitudeDelta: 0.009,
+        longitudeDelta: 0.009,
+      });
+    } else {
+      //check lai ki
+      let newRegion = updateRegion(pointList[pointList.length - 1], region);
+      if (newRegion) {
+        console.log("change region============");
+        setRegion(newRegion);
+      }
+    }
+  }, [pointList]);
+
   const [modalVisible, setModalVisible] = useState(false);
   TaskManager.defineTask("TRACK", async ({ data: { locations }, error }) => {
     if (error) {
@@ -52,30 +112,27 @@ function JourneyTrack({
       console.log(streetName[0].street);
       locations[0].streetName = streetName[0].street;
       console.log("======", locations[0]);
+
+      //check change stree
+      let length = pointList.length;
+      // if (
+      //   length > 1 &&
+      //   pointList[length - 2].streetName &&
+      //   pointList[length - 2].streetName != locations[0].streetName
+      // ) {
+      //   console.log(
+      //     ` Đổi đường !!!!!! cũ ${pointList[length - 2].streetName} mới ==== ${
+      //       locations[0].streetName
+      //     }  `
+      //   );
+      // }
+      if(new Date().getMinutes() % 2 == 0){
+        await schedulePushNotification(streetName[0].street);
+      }
+
       changeCurrentJourneyPointList(locations[0]);
     }
   });
-  const [currentJourneyName, setCurrentJourneyName] = useState(journeyName);
-
-  const [region, setRegion] = useState({});
-
-  useEffect(() => {
-    if (pointList.length == 0) {
-      setRegion({
-        latitude: "37.32837938",
-        longitude: "-122.02686219",
-        latitudeDelta: 0.009,
-        longitudeDelta: 0.009,
-      });
-    } else {
-      //check lai ki 
-      let newRegion = updateRegion(pointList[pointList.length - 1], region);
-      if (newRegion) {
-        console.log('change region============')
-        setRegion(newRegion);
-      }
-    }
-  }, [pointList]);
 
   const startRecord = () => {
     if (!trackingStatus) {
@@ -150,7 +207,6 @@ function JourneyTrack({
     </Modal>
   );
 
-
   return (
     <View style={styles.container}>
       <Text>ten hanh trinh: {journeyName} </Text>
@@ -189,6 +245,12 @@ function JourneyTrack({
         title={"Chụp Ảnh"}
         onPress={() => {
           navigation.navigate(CAMERA_SCREEN);
+        }}
+      />
+      <Button
+        title="Press to schedule a notification"
+        onPress={async () => {
+          await schedulePushNotification();
         }}
       />
       <Text>======================+++++=============</Text>
@@ -276,3 +338,47 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
+
+// notification services
+async function schedulePushNotification(streetName) {
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: "tracking app 📬",
+      body: streetName,
+    },
+    trigger: { seconds: 1 },
+  });
+}
+
+async function registerForPushNotificationsAsync() {
+  let token;
+  if (Constants.isDevice) {
+    const {
+      status: existingStatus,
+    } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== "granted") {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    if (finalStatus !== "granted") {
+      alert("Failed to get push token for push notification!");
+      return;
+    }
+    token = (await Notifications.getExpoPushTokenAsync()).data;
+    console.log(token);
+  } else {
+    alert("Must use physical device for Push Notifications");
+  }
+
+  if (Platform.OS === "android") {
+    Notifications.setNotificationChannelAsync("default", {
+      name: "default",
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: "#FF231F7C",
+    });
+  }
+
+  return token;
+}
