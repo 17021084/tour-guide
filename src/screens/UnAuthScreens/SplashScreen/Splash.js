@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet, Image, Dimensions } from "react-native";
 
 const width = Dimensions.get("window").width;
+const height = Dimensions.get("window").height;
 
 export default function Splash({ content, image, button }) {
   const imageStyle = {
@@ -13,7 +14,9 @@ export default function Splash({ content, image, button }) {
       <View style={styles.imageBox}>
         <Image style={imageStyle} source={image.image} />
       </View>
-      <Text style={styles.content}> {content} </Text>
+      <View style={styles.content}>
+        <Text style={styles.contentText}> {content} </Text>
+      </View>
       <View style={styles.button}>{button}</View>
     </View>
   );
@@ -24,18 +27,24 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     backgroundColor: "white",
-    paddingTop: 150,
+    paddingTop: 50,
+    paddingBottom:50,
   },
   imageBox: {
-    paddingTop: 30,
+    paddingTop: height * 0.1,
     width: width,
     alignItems: "center",
+    height: height * 0.5,
   },
-  content: {
-    marginTop: 50,
+  contentText: {
     textAlign: "center",
     fontWeight: "800",
     fontFamily: "open-sans",
+    fontSize:20
+  },
+  content: {
+    height: height*0.1,
+    marginTop: 10,
   },
   button: {
     marginTop: 10,

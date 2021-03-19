@@ -43,7 +43,6 @@ function Home({
     searchStreet(address);
   };
 
-
   const currentMarker = () => {
     const newRegion = {
       ...region,
@@ -53,35 +52,43 @@ function Home({
     regionSearchChange(newRegion);
   };
 
-
   return (
     <View>
       <MapSearch />
-      <View style={styles.buttonBox}>
-        <Text> {streetName} </Text>
-        {person ? (
+      <View style={styles.box}>
+
+       {
+      //   <View style={styles.addressBox}>
+      //   <Text style={styles.address}> Địa chỉ:{streetName} </Text>
+      // </View>
+
+       }
+
+        <View style={styles.buttonBox}>
+          {person ? (
+            <ButtonIcon
+              onPress={() => {
+                navigation.navigate(PERSON_DETAIL_SCREEN, { person });
+              }}
+              // onPress={getAddress}
+              name="location-history"
+              size={50}
+              color={color.aqua}
+            />
+          ) : null}
           <ButtonIcon
-            onPress={() => {
-              navigation.navigate(PERSON_DETAIL_SCREEN, { person });
-            }}
-            // onPress={getAddress}
-            name="location-history"
+            onPress={setMarkerToCurrentLocation}
+            name="my-location"
             size={50}
             color={color.aqua}
           />
-        ) : null}
-        <ButtonIcon
-          onPress={setMarkerToCurrentLocation}
-          name="my-location"
-          size={50}
-          color={color.aqua}
-        />
-        <ButtonIcon
-          onPress={currentMarker}
-          name="not-listed-location"
-          size={50}
-          color={color.aqua}
-        />
+          <ButtonIcon
+            onPress={currentMarker}
+            name="not-listed-location"
+            size={50}
+            color={color.aqua}
+          />
+        </View>
       </View>
     </View>
   );
@@ -89,9 +96,26 @@ function Home({
 
 const styles = StyleSheet.create({
   container: {},
-  buttonBox: {
+  box: {
     position: "absolute",
     bottom: 80,
+    flexDirection: "row-reverse",
+    justifyContent: "space-around",
+    alignItems: "flex-end",
+  },
+  buttonBox: {
+    marginLeft: 20,
+    flexDirection: "row-reverse",
+  },
+  address: {
+    textAlign: "center",
+    fontWeight: "800",
+    fontFamily: "open-sans",
+    fontSize: 20,
+  },
+  addressBox: {
+    paddingLeft: 20,
+    paddingBottom: 20,
   },
 });
 

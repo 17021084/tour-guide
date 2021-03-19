@@ -4,7 +4,8 @@ export const SIGN_UP_SCREEN = "SIGN_UP_SCREEN";
 export const SPLASH_SWIPER_SCREEN = "SPLASH_SWIPER_SCREEN";
 
 // Auth Screens stack ==========================================
-export const PERSON_DETAIL_SCREEN = "Person details";
+export const PERSON_DETAIL_SCREEN = "Nhân vật lịch sử";
+export const CONCERN_SCREEN = "Thông tin liên quan";
 
 // Bottom Tab Screen
 export const BOTTOM_TAB_SCREEN = "Màn hình chính";

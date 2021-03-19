@@ -8,28 +8,32 @@ export default function BookmarkCard({ person }) {
       <View style={styles.header}>
         <Image
           style={styles.image}
-          source={{
-            uri:
-              person.thumbnail ||
-              "https://png.pngtree.com/png-clipart/20190619/original/pngtree-vector-valid-user-icon-png-image_3989945.jpg",
-          }}
+          source={
+            person.thumbnail
+              ? {
+                  uri: person.thumbnail,
+                }
+              : require("../../assets/noImage.png")
+          }
         />
+
         <View style={styles.intro}>
           <Text style={styles.personName}> {person.label} </Text>
-          <Text style={styles.shortDescription}>{person.termDescription}</Text>
+          <Text style={styles.shortDescription}>
+            {person.termDescription ||
+              "Hiện tại Chưa có thông tin chi tiết"}
+          </Text>
         </View>
       </View>
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 30,
-    borderWidth: 1,
+    borderBottomWidth: 1,
     borderColor: color.green,
     paddingHorizontal: 10,
     paddingVertical: 10,

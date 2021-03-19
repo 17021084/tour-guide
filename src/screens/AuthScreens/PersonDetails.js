@@ -1,6 +1,6 @@
 import React from "react";
-import { View, Text, StyleSheet, Image } from "react-native";
-import { ScrollView } from "react-native-gesture-handler";
+import { View, Text, StyleSheet, Image, SafeAreaView } from "react-native";
+import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import { connect } from "react-redux";
 import { useEffect, useState } from "react/cjs/react.development";
 import ButtonBox from "../../components/common/ButtonIcon";
@@ -9,10 +9,17 @@ import ViewMoreText from "react-native-view-more-text";
 import { color } from "../../config/appConfig";
 import * as firebase from "firebase";
 import { addBookmark, deleteBookmark } from "../../redux/actions/UserAction";
+import { CONCERN_SCREEN } from "../ScreenName";
 
-function PersonDetails({ route,deleteBookmark, bookmarkList, addBookmark }) {
+function PersonDetails({
+  route,
+  deleteBookmark,
+  bookmarkList,
+  addBookmark,
+  navigation,
+}) {
   const [isBooked, setIsBooked] = useState();
-  const {person} = route.params
+  const { person } = route.params;
   useEffect(() => {
     let exsist = false;
     for (let i = 0; i < bookmarkList.length; ++i) {
@@ -26,7 +33,7 @@ function PersonDetails({ route,deleteBookmark, bookmarkList, addBookmark }) {
     } else {
       setIsBooked(false);
     }
-  }, [bookmarkList]);
+  }, [bookmarkList, person]);
 
   const onBookmark = () => {
     firebase
@@ -54,10 +61,18 @@ function PersonDetails({ route,deleteBookmark, bookmarkList, addBookmark }) {
   };
 
   const renderViewMore = (onPress) => {
-    return <Text onPress={onPress}>View more</Text>;
+    return (
+      <Text style={styles.viewMoreLess} onPress={onPress}>
+        Xem Thêm
+      </Text>
+    );
   };
   const renderViewLess = (onPress) => {
-    return <Text onPress={onPress}>View less</Text>;
+    return (
+      <Text style={styles.viewMoreLess} onPress={onPress}>
+        Thu gọn{" "}
+      </Text>
+    );
   };
 
   const renderInforBoxObject = () => {
@@ -74,70 +89,81 @@ function PersonDetails({ route,deleteBookmark, bookmarkList, addBookmark }) {
     );
   };
 
+  const searchConcern = (typeName) => {
+    navigation.navigate(CONCERN_SCREEN, { typeName });
+  };
+
   if (person == null) {
     return <Text> Ko có thông tin </Text>;
   }
   if (person) {
     return (
-      <ScrollView style={styles.container}>
-        <View style={styles.header}>
-          <Image
-            style={styles.image}
-            source={{
-              uri:
-                person.thumbnail ||
-                "https://png.pngtree.com/png-clipart/20190619/original/pngtree-vector-valid-user-icon-png-image_3989945.jpg",
-            }}
-          />
-          <View style={styles.intro}>
-            <Text style={styles.personName}> {person.label} </Text>
-            <Text style={styles.shortDescrpition}>
-              {person.termDescription}
-            </Text>
+      <View style={styles.container}>
+        <ScrollView>
+          <View style={styles.header}>
+            <Image
+              style={styles.image}
+              source={{
+                uri:
+                  person.thumbnail ||
+                  "https://png.pngtree.com/png-clipart/20190619/original/pngtree-vector-valid-user-icon-png-image_3989945.jpg",
+              }}
+            />
+            <View style={styles.intro}>
+              <Text style={styles.personName}> {person.label} </Text>
+              <Text style={styles.shortDescrpition}>
+                {person.termDescription}
+              </Text>
+            </View>
           </View>
-        </View>
-        <View style={styles.bookmark}>
-          {isBooked ? (
-            <ButtonBox
-              name="bookmark"
-              color={color.aqua}
-              onPress={onUnBookmark}
-            />
-          ) : (
-            <ButtonBox
-              name="bookmark-outline"
-              color={color.aqua}
-              onPress={onBookmark}
-            />
-          )}
-        </View>
+          <View style={styles.bookmark}>
+            {isBooked ? (
+              <ButtonBox
+                name="bookmark"
+                color={color.aqua}
+                onPress={onUnBookmark}
+              />
+            ) : (
+              <ButtonBox
+                name="bookmark-outline"
+                color={color.aqua}
+                onPress={onBookmark}
+              />
+            )}
+          </View>
 
-        <HoriLine />
-        <View style={styles.openText}>
-          <Text style={styles.title}>Thông Tin chi tiết: </Text>
-          <ViewMoreText
-            style={styles.details}
-            numberOfLines={10}
-            renderViewMore={renderViewMore}
-            renderViewLess={renderViewLess}
-            textStyle={{ textAlign: "left" }}
-          >
-            <Text style={styles.details}>{person.openingText}</Text>
-          </ViewMoreText>
-        </View>
-        <HoriLine />
+          <HoriLine />
+          <View style={styles.openText}>
+            <Text style={styles.title}>Thông Tin chi tiết: </Text>
+            <ViewMoreText
+              style={styles.details}
+              numberOfLines={10}
+              renderViewMore={renderViewMore}
+              renderViewLess={renderViewLess}
+              textStyle={{ textAlign: "left" }}
+            >
+              <Text style={styles.details}>{person.openingText}</Text>
+            </ViewMoreText>
+          </View>
+          <HoriLine />
 
-        <View>
-          <Text style={styles.title}>Các chức danh: </Text>
-          {person.types.map((infor) => (
-            <Text>* {infor}</Text>
-          ))}
-        </View>
+          <View>
+            <Text style={styles.title}>Các thông tin liên quan: </Text>
+            {person.types.map((typeName) => (
+              <TouchableOpacity
+                onPress={() => searchConcern(typeName)}
+                style={styles.textTypes}
+              >
+                <Text>* {typeName}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
 
-        {
-          //renderInforBoxObject()
-        }
-      </ScrollView>
+          {
+            // renderInforBoxObject()
+          }
+        </ScrollView>
+      </View>
     );
   }
 }
@@ -148,14 +174,15 @@ const styles = StyleSheet.create({
   container: {
     position: "relative",
     flex: 1,
-    paddingVertical: 30,
+    paddingTop: 30,
     paddingHorizontal: 15,
+    paddingBottom: 40,
   },
   bookmark: {
     position: "absolute",
     height: 55,
-    right: 10,
-    top: -20,
+    right: 0,
+    top: 0,
   },
   header: {
     flex: 1,
@@ -190,9 +217,18 @@ const styles = StyleSheet.create({
   },
   openText: {
     marginVertical: 20,
+    fontFamily: "open-sans",
   },
   details: {
     marginVertical: 10,
+  },
+  textTypes: {
+    marginVertical: 2,
+  },
+  viewMoreLess: {
+    fontSize: 20,
+    paddingTop: 3,
+    fontFamily: "open-sans",
   },
 });
 
