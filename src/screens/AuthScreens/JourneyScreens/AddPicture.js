@@ -1,12 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Button, TouchableOpacity, StyleSheet ,Image } from "react-native";
+import {
+  View,
+  Text,
+  Button,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+} from "react-native";
 import { POST_SCREEN } from "../../ScreenName";
 import * as ImagePicker from "expo-image-picker";
 import { Camera } from "expo-camera";
 
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import { color } from "../../../config/appConfig";
 
-export default function AddPicture({ navigation }) {
+export default function AddPicture({ navigation, route }) {
+  const { currentPosition } = route.params;
   const [hasCameraPermission, setHasCameraPermission] = useState(null);
   const [hasGalleryPermission, setHasGalleryPermission] = useState(null);
   const [type, setType] = useState(Camera.Constants.Type.back);
@@ -75,7 +84,7 @@ export default function AddPicture({ navigation }) {
           <MaterialCommunityIcons
             name="camera-retake-outline"
             size={50}
-            color={"pink"}
+            color={color.aqua}
           />
         </TouchableOpacity>
         <TouchableOpacity
@@ -87,17 +96,21 @@ export default function AddPicture({ navigation }) {
           <MaterialCommunityIcons
             name="checkbox-blank-circle-outline"
             size={100}
-            color={"pink"}
+            color={color.aqua}
           />
         </TouchableOpacity>
         {image && (
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
-              navigation.navigate(POST_SCREEN, { image });
+              navigation.navigate(POST_SCREEN, { image , currentPosition });
             }}
           >
-            <MaterialCommunityIcons name="upload" size={30} color={"pink"} />
+            <MaterialCommunityIcons
+              name="upload"
+              size={30}
+              color={color.aqua}
+            />
           </TouchableOpacity>
         )}
         <TouchableOpacity
@@ -112,25 +125,13 @@ export default function AddPicture({ navigation }) {
             <MaterialCommunityIcons
               name="picture-in-picture-bottom-right"
               size={100}
-              color={"pink"}
+              color={color.aqua}
             />
           )}
         </TouchableOpacity>
       </View>
     </View>
   );
-
-  // return (
-  //   <View>
-  //     <Text>Camera </Text>
-  //     <Button
-  //       title={"Post"}
-  //       onPress={() => {
-  //         navigation.navigate(POST_SCREEN);
-  //       }}
-  //     />
-  //   </View>
-  // );
 }
 
 const styles = StyleSheet.create({
@@ -148,7 +149,6 @@ const styles = StyleSheet.create({
     margin: 20,
   },
   button: {
-    alignSelf: "flex-end",
     alignItems: "center",
   },
   previewPicture: {

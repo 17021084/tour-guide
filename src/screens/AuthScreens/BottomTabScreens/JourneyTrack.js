@@ -59,22 +59,13 @@ function JourneyTrack({
     registerForPushNotificationsAsync().then((token) =>
       setExpoPushToken(token)
     );
-
     notificationListener.current = Notifications.addNotificationReceivedListener(
       (notification) => {
         setNotification(notification);
       }
     );
-
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(
-      (response) => {
-        console.log(response);
-      }
-    );
-
     return () => {
       Notifications.removeNotificationSubscription(notificationListener);
-      Notifications.removeNotificationSubscription(responseListener);
     };
   }, []);
 
@@ -126,9 +117,9 @@ function JourneyTrack({
       //     }  `
       //   );
       // }
-      if(new Date().getMinutes() % 2 == 0){
-        await schedulePushNotification(streetName[0].street);
-      }
+      // if (new Date().getMinutes() % 2 == 0) {
+      //   await schedulePushNotification(streetName[0].street);
+      // }
 
       changeCurrentJourneyPointList(locations[0]);
     }
@@ -207,6 +198,12 @@ function JourneyTrack({
     </Modal>
   );
 
+  const addPicture = () => {
+    stopRecord()
+    let currentPosition = pointList[pointList.length - 1];
+    navigation.navigate(CAMERA_SCREEN, { currentPosition });
+  };
+
   return (
     <View style={styles.container}>
       <Text>ten hanh trinh: {journeyName} </Text>
@@ -241,12 +238,7 @@ function JourneyTrack({
           // navigation.navigate(PERSON_DETAIL_SCREEN, {person:null});
         }}
       />
-      <Button
-        title={"Chụp Ảnh"}
-        onPress={() => {
-          navigation.navigate(CAMERA_SCREEN);
-        }}
-      />
+      <Button title={"Chụp Ảnh"} onPress={addPicture} />
       <Button
         title="Press to schedule a notification"
         onPress={async () => {

@@ -12,13 +12,23 @@ import {
 // wildcard import
 import * as firebase from "firebase";
 import { connect } from "react-redux";
+import { color } from "../../../config/appConfig";
+import ButtonBox from "../../../components/common/ButtonBox";
+import { changeCurrentJourneyPointList } from "../../../redux/actions/TrackAction";
+import { JOURNEY_TRACK_SCREEN } from "../../ScreenName";
+
 const windowWidth = Dimensions.get("window").width;
 const containerPadding = 10;
 
-function Post({ route, navigation }) {
-  const image = route.params.image;
+function Post({ route, navigation, changeCurrentJourneyPointList }) {
+  const { image, currentPosition } = route.params;
   const [caption, setCaption] = useState("");
 
+  const saveToListPoint = () => {
+    const newImage = { ...currentPosition, imageURI: image, caption: caption };
+    changeCurrentJourneyPointList(newImage);
+    navigation.navigate(JOURNEY_TRACK_SCREEN);
+  };
 
   //fix keyboard hide in put field, search :KeyboardAvoidingView
   return (
@@ -28,12 +38,14 @@ function Post({ route, navigation }) {
           setCaption(text);
         }}
         value={caption}
-        placeholder="What are you thinking ?"
+        placeholder="Hãy đặt tiêu đề cho bức ảnh này"
         style={styles.input}
         multiline={true}
       />
       <Image source={{ uri: image }} style={styles.image} />
-      <Button style={styles.button} onPress={null} title="upload" />
+      <View style={styles.button}>
+        <ButtonBox onPress={saveToListPoint} title="Lưu" />
+      </View>
     </View>
   );
 }
@@ -51,12 +63,16 @@ const styles = StyleSheet.create({
   },
   input: {
     paddingHorizontal: 20,
+    paddingVertical: 40,
     marginVertical: 20,
     height: 150,
-    borderColor: "pink",
+    borderColor: color.aqua,
     borderWidth: 1,
     borderRadius: 30,
   },
+  button: {
+    height: 80,
+  },
 });
 
-export default connect(null, { })(Post);
+export default connect(null, { changeCurrentJourneyPointList })(Post);
