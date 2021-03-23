@@ -79,6 +79,7 @@ function JourneyList({
           .doc(firebase.auth().currentUser.uid)
           .collection(journeyName)
           .add({
+            journeyName:journeyName,
             pointList: value,
           })
           .then((res) => {

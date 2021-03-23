@@ -21,6 +21,7 @@ function PersonDetails({
   const [isBooked, setIsBooked] = useState();
   const { person } = route.params;
   useEffect(() => {
+   if(person){
     let exsist = false;
     for (let i = 0; i < bookmarkList.length; ++i) {
       if (bookmarkList[i].meta.pageID == person.meta.pageID) {
@@ -33,6 +34,7 @@ function PersonDetails({
     } else {
       setIsBooked(false);
     }
+   }
   }, [bookmarkList, person]);
 
   const onBookmark = () => {

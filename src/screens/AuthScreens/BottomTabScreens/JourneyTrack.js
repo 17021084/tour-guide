@@ -19,14 +19,20 @@ import {
   journeyReset,
 } from "../../../redux/actions/TrackAction";
 
-import InputBox from "../../../components/common/InputBox.js";
+import InputBox from "../../../components/common/InputBox";
+import ButtonIcon from "../../../components/common/ButtonIcon";
+import ButtonBox from "../../../components/common/ButtonBox";
 import MapView from "react-native-maps";
 import { updateRegion } from "../../../utils/updateRegion";
 import Constants from "expo-constants";
 import * as Notifications from "expo-notifications";
+import { color, pointIcon } from "../../../config/appConfig";
+import { searchStreet } from "../../../redux/actions";
+import filterStreetName from "../../../utils/filterStreetName";
+import ontologyAPI from "../../../api/ontologyApi";
 
 const TRACKING_INTERVAL = 20 * 1000; // 10s
-const DISTANCE_INTERVAL = 0; // meters
+const DISTANCE_INTERVAL = 10; // meters
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -35,9 +41,11 @@ Notifications.setNotificationHandler({
     shouldSetBadge: false,
   }),
 });
-
+searchStreet;
 function JourneyTrack({
   navigation,
+  searchStreet,
+  person,
   trackingStatus,
   pointList,
   journeyName,
@@ -47,7 +55,12 @@ function JourneyTrack({
   changeCurrentJourneyPointList,
 }) {
   const [currentJourneyName, setCurrentJourneyName] = useState(journeyName);
-  const [region, setRegion] = useState({});
+  const [region, setRegion] = useState({
+    latitude: 37.32590459,
+    longitude: -122.02587676,
+    longitudeDelta: 0.02,
+    latitudeDelta: 0.02,
+  });
 
   //notification
   const [expoPushToken, setExpoPushToken] = useState("");
@@ -55,6 +68,7 @@ function JourneyTrack({
   const notificationListener = useRef();
   const responseListener = useRef();
 
+  // searchStreet(address);
   useEffect(() => {
     registerForPushNotificationsAsync().then((token) =>
       setExpoPushToken(token)
@@ -69,23 +83,43 @@ function JourneyTrack({
     };
   }, []);
 
-  useEffect(() => {
-    if (pointList.length == 0) {
-      setRegion({
-        latitude: "37.32837938",
-        longitude: "-122.02686219",
-        latitudeDelta: 0.009,
-        longitudeDelta: 0.009,
-      });
-    } else {
-      //check lai ki
-      let newRegion = updateRegion(pointList[pointList.length - 1], region);
-      if (newRegion) {
-        console.log("change region============");
-        setRegion(newRegion);
-      }
+  // useEffect(() => {
+  //   if (pointList.length == 0) {
+  //     setRegion({
+  //       latitude: "37.32837938",
+  //       longitude: "-122.02686219",
+  //       latitudeDelta: 0.009,
+  //       longitudeDelta: 0.009,
+  //     });
+  //   } else {
+  //     //check lai ki
+  //     let newRegion = updateRegion(pointList[pointList.length - 1], region);
+  //     if (newRegion) {
+  //       console.log("change region============");
+  //       setRegion(newRegion);
+  //     }
+  //   }
+  // }, [pointList]);
+
+  // const setCurrentRegion = ()=>{
+  //   if (pointList.length != 0) {
+  //     let newRegion = updateRegion(pointList[pointList.length - 1], region);
+  //     if (newRegion) {
+  //       console.log("change region============");
+  //       setRegion(newRegion);
+  //     }
+  //   }
+  // }
+
+  const getPersonInfor = async () => {
+    if (pointList.length) {
+      const streetname = filterStreetName(
+        pointList[pointList.length - 1].streetName
+      );
+      const person = await ontologyAPI(streetname);
+      navigation.navigate(PERSON_DETAIL_SCREEN, { person: person.data[0] });
     }
-  }, [pointList]);
+  };
 
   const [modalVisible, setModalVisible] = useState(false);
   TaskManager.defineTask("TRACK", async ({ data: { locations }, error }) => {
@@ -106,17 +140,20 @@ function JourneyTrack({
 
       //check change stree
       let length = pointList.length;
-      // if (
-      //   length > 1 &&
-      //   pointList[length - 2].streetName &&
-      //   pointList[length - 2].streetName != locations[0].streetName
-      // ) {
-      //   console.log(
-      //     ` Đổi đường !!!!!! cũ ${pointList[length - 2].streetName} mới ==== ${
-      //       locations[0].streetName
-      //     }  `
-      //   );
-      // }
+      if (
+        length > 1 &&
+        pointList[length - 2].streetName &&
+        pointList[length - 2].streetName != locations[0].streetName &&
+        Platform.OS === "android" &&
+        Constants.isDevice
+      ) {
+        await schedulePushNotification(streetName[0].street);
+        console.log(
+          ` Đổi đường !!!!!! cũ ${pointList[length - 2].streetName} mới ==== ${
+            locations[0].streetName
+          }  `
+        );
+      }
       // if (new Date().getMinutes() % 2 == 0) {
       //   await schedulePushNotification(streetName[0].street);
       // }
@@ -129,7 +166,7 @@ function JourneyTrack({
     if (!trackingStatus) {
       //if false it mean its not tracking
       Location.startLocationUpdatesAsync("TRACK", {
-        deferredUpdatesInterval: TRACKING_INTERVAL,
+        distanceInterval: DISTANCE_INTERVAL,
       });
       changeTrackingStatus(true);
     }
@@ -156,9 +193,9 @@ function JourneyTrack({
   const _renderStartOrResumeButton = () => {
     if (pointList.length == 0) {
       //start
-      return <Button title={"Bắt đầu"} onPress={startRecord} />;
+      return <ButtonBox title={"Bắt đầu"} onPress={startRecord} />;
     } else {
-      return <Button title={"Tiếp tục "} onPress={startRecord} />;
+      return <ButtonBox title={"Tiếp tục "} onPress={startRecord} />;
     }
   };
 
@@ -178,6 +215,7 @@ function JourneyTrack({
             <InputBox
               onChangeText={(name) => setCurrentJourneyName(name)}
               title={"Tên Hành Trình"}
+              placeholder={journeyName || "Hãy nhập tên hành trình mới"}
             />
           </View>
 
@@ -199,64 +237,96 @@ function JourneyTrack({
   );
 
   const addPicture = () => {
-    stopRecord()
+    stopRecord();
     let currentPosition = pointList[pointList.length - 1];
     navigation.navigate(CAMERA_SCREEN, { currentPosition });
   };
 
   return (
     <View style={styles.container}>
-      <Text>ten hanh trinh: {journeyName} </Text>
-
-      {journeyName === "" ? (
-        <Pressable
-          style={[styles.button, styles.buttonOpen]}
-          onPress={() => setModalVisible(true)}
-        >
-          <Text style={styles.textStyle}> set Name </Text>
-        </Pressable>
-      ) : null}
-
-      <Text>Trạng thái: {trackingStatus ? "Đang theo dõi " : "Đang dừng"}</Text>
-      <Text>Số điểm : {pointList.length}</Text>
-
-      <Text>
-        Dia chi bat dau:{pointList.length ? pointList[0].streetName : ""}
-      </Text>
-      <Text>
-        Dia chi Hien tai:
-        {pointList.length ? pointList[pointList.length - 1].streetName : ""}
-      </Text>
-      <Text>Button xem ong hien tai : </Text>
-
-      {_renderStartOrResumeButton()}
-      <Button title={"tắt record"} onPress={stopRecord} />
-      <Button title={"kết thúc hành trình"} onPress={saveJourney} />
-      <Button
-        title={"Chi tiết người đó "}
-        onPress={() => {
-          // navigation.navigate(PERSON_DETAIL_SCREEN, {person:null});
-        }}
-      />
-      <Button title={"Chụp Ảnh"} onPress={addPicture} />
-      <Button
-        title="Press to schedule a notification"
-        onPress={async () => {
-          await schedulePushNotification();
-        }}
-      />
-      <Text>======================+++++=============</Text>
-
-      {_renderModalSetName()}
-      <MapView style={{ height: 300 }} region={region}>
-        {pointList.map((point) => (
-          <MapView.Marker
-            coordinate={{
-              latitude: point.coords.latitude,
-              longitude: point.coords.longitude,
-            }}
+      <View style={styles.headerBox}>
+        <View style={styles.inforBox}>
+          <Text style={styles.title}>Tên hành trình: </Text>
+          <Text style={styles.titleValue}> {journeyName} </Text>
+          <ButtonIcon
+            onPress={() => setModalVisible(true)}
+            style={styles.changeButton}
+            name={"drive-file-rename-outline"}
+            color={color.aqua}
+            size={35}
           />
-        ))}
+        </View>
+
+        <View style={styles.inforBox}>
+          <Text style={styles.title}>Số điểm đã lưu : </Text>
+          <Text style={styles.titleValue}>{pointList.length}</Text>
+        </View>
+
+        <View style={styles.inforBox}>
+          <Text style={styles.title}>Địa chỉ bắt đầu :</Text>
+          <Text style={styles.titleValue}>
+            {pointList.length ? pointList[0].streetName : ""}
+          </Text>
+        </View>
+
+        <View style={styles.inforBox}>
+          <Text style={styles.title}>Địa chỉ hiện tại : </Text>
+          <Text style={styles.titleValue}>
+            {pointList.length ? pointList[pointList.length - 1].streetName : ""}
+          </Text>
+          <ButtonIcon
+            onPress={getPersonInfor}
+            // onPress={getAddress}
+            name="location-history"
+            size={35}
+            color={color.aqua}
+          />
+        </View>
+
+        <View style={styles.inforBox}>
+          <View>
+            <Text style={styles.title}>Trạng thái:</Text>
+          </View>
+          <Text style={styles.titleValue}>
+            {trackingStatus ? "Đang theo dõi " : "Đang dừng"}
+          </Text>
+        </View>
+      </View>
+
+      <View style={styles.buttonBox}>
+        {_renderStartOrResumeButton()}
+
+        <ButtonBox title={"tắt"} onPress={stopRecord} />
+        <ButtonBox title={"kết thúc"} onPress={saveJourney} />
+        <ButtonIcon
+          onPress={addPicture}
+          name="camera-alt"
+          size={50}
+          color={color.aqua}
+        />
+      </View>
+      {_renderModalSetName()}
+
+      <MapView style={{ height: "100%" }} region={region}>
+        {pointList.map((point) => {
+          if (pointList.indexOf(point) > 0) {
+            return (
+              <MapView.Marker
+                coordinate={{
+                  latitude: point.coords.latitude,
+                  longitude: point.coords.longitude,
+                }}
+                image={
+                  pointList.indexOf(point) == 1
+                    ? pointIcon.start
+                    : pointList.indexOf(point) == pointList.length - 1
+                    ? pointIcon.current
+                    : pointIcon.point
+                }
+              />
+            );
+          }
+        })}
       </MapView>
     </View>
   );
@@ -267,6 +337,7 @@ const mapStateToProps = (state) => {
     trackingStatus: state.trackState.trackingStatus,
     pointList: state.trackState.currentJourney.pointList,
     journeyName: state.trackState.currentJourney.journeyName,
+    person: state.searchState.person,
   };
 };
 
@@ -279,7 +350,7 @@ export default connect(mapStateToProps, {
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 100,
+    paddingTop: 50,
   },
   modalButtonBox: {
     flexDirection: "row",
@@ -329,6 +400,37 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     textAlign: "center",
   },
+  title: {
+    fontSize: 17,
+    fontFamily: "open-sans",
+    paddingVertical: 3,
+  },
+  inforBox: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  headerBox: {
+    paddingHorizontal: 20,
+  },
+  changeButton: {
+    flex: 1,
+  },
+  titleValue: {
+    flex: 2,
+    fontSize: 17,
+    fontFamily: "open-sans-bold",
+    paddingVertical: 1,
+  },
+  buttonBox: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  mapView: {
+    flex: 1,
+    height: 300,
+  },
 });
 
 // notification services
@@ -360,16 +462,17 @@ async function registerForPushNotificationsAsync() {
     token = (await Notifications.getExpoPushTokenAsync()).data;
     console.log(token);
   } else {
-    alert("Must use physical device for Push Notifications");
+    // alert("Must use physical device for Push Notifications");
   }
 
   if (Platform.OS === "android") {
-    Notifications.setNotificationChannelAsync("default", {
-      name: "default",
-      importance: Notifications.AndroidImportance.MAX,
-      vibrationPattern: [0, 250, 250, 250],
-      lightColor: "#FF231F7C",
-    });
+    // Notifications.setNotificationChannelAsync("default", {
+    //   name: "default",
+    //   importance: Notifications.AndroidImportance.MAX,
+    //   vibrationPattern: [0, 250, 250, 250],
+    //   lightColor: "#FF231F7C",
+    // });
+    alert("This function isnt avaliabel in android 11 and 10 .");
   }
 
   return token;

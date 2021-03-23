@@ -14,3 +14,10 @@ export const color = {
   pink: "#FF75A0",
   orange: "#FFCB91",
 };
+
+export const pointIcon ={
+  point: require('../../assets/mapicons/point.png'),
+  current: require('../../assets/mapicons/current.png'),
+  start: require('../../assets/mapicons/start.png'),
+  end: require('../../assets/mapicons/end.png'),
+}
