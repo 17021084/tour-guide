@@ -80,12 +80,12 @@ function JourneyTrack({
 
   useEffect(() => {
     if (pointList.length < 1) {
-      setRegion({
-        latitude: "37.32837938",
-        longitude: "-122.02686219",
-        latitudeDelta: 0.009,
-        longitudeDelta: 0.009,
-      });
+      // setRegion({
+      //   latitude: "37.32837938",
+      //   longitude: "-122.02686219",
+      //   latitudeDelta: 0.009,
+      //   longitudeDelta: 0.009,
+      // });
     } else {
       //check lai ki
       let newRegion = updateRegion(pointList[pointList.length - 1], region);
@@ -177,28 +177,14 @@ function JourneyTrack({
     }
   };
 
-  const saveJourney = () => {
-    //save journey to the firebase firestore
-    if (journeyName.length == 0) {
-      setModalVisible(true);
-    } else {
-      stopRecord();
-      saveCurrentJourney();
-    }
+  const deleteJourney = () => {
+    stopRecord();
+    journeyReset();
   };
 
   const setNameJourney = () => {
     changeCurrentJourneyName(currentJourneyName);
     setModalVisible(!modalVisible);
-  };
-
-  const _renderStartOrResumeButton = () => {
-    if (pointList.length == 0) {
-      //start
-      return <ButtonBox title={"Bắt đầu"} onPress={startRecord} />;
-    } else {
-      return <ButtonBox title={"Tiếp tục "} onPress={startRecord} />;
-    }
   };
 
   const _renderModalSetName = () => (
@@ -296,8 +282,14 @@ function JourneyTrack({
       </View>
 
       <View style={styles.buttonBox}>
-        {_renderStartOrResumeButton()}
+        <ButtonBox title={"bật"} onPress={startRecord} />
         <ButtonBox title={"tắt"} onPress={stopRecord} />
+        <ButtonIcon
+          onPress={deleteJourney}
+          name="delete"
+          size={50}
+          color={color.aqua}
+        />
         <ButtonIcon
           onPress={setCurrentRegion}
           name="not-listed-location"
@@ -355,7 +347,6 @@ export default connect(mapStateToProps, {
   changeCurrentJourneyPointList,
   saveCurrentJourney,
 })(JourneyTrack);
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
