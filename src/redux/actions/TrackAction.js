@@ -3,11 +3,12 @@ import {
   CURRENT_JOURNEY_POINTS_LIST_CHANGE,
   JOURNEY_RESET,
   TRACKING_STATUS_CHANGE,
+  UPDATE_JOURNEY_LIST,
 } from "./type";
 
 export const journeyReset = () => {
   return {
-    action: JOURNEY_RESET,
+    type: JOURNEY_RESET,
   };
 };
 
@@ -37,5 +38,20 @@ export const changeCurrentJourneyPointList = (pointList) => {
       type: CURRENT_JOURNEY_POINTS_LIST_CHANGE,
       payload: pointList,
     });
+  };
+};
+
+const updateJourneyList = (journey) => {
+  return {
+    type: UPDATE_JOURNEY_LIST,
+    payload: journey,
+  };
+};
+
+export const saveCurrentJourney = () => {
+  return (dispatch, getState) => {
+    const currentJourney = getState().trackState.currentJourney;
+    dispatch(updateJourneyList(currentJourney));
+    dispatch(journeyReset());
   };
 };

@@ -33,8 +33,14 @@ const initializeState = {
 export default (state = initializeState, action) => {
   switch (action.type) {
     case JOURNEY_RESET:
-      return { ...state, trackingStatus: false, currentJourney: {} };
+      return {
+        ...state,
+        trackingStatus: false,
+        currentJourney: { journeyName: "", pointList: [] },
+      };
     case UPDATE_JOURNEY_LIST:
+      return { ...state, journeyList: [...state.journeyList, action.payload] };
+    case FETCH_JOURNEY_LIST:
       return { ...state, journeyList: action.payload };
     case TRACKING_STATUS_CHANGE:
       return { ...state, trackingStatus: action.payload };

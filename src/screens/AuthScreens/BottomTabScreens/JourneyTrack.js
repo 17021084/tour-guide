@@ -1,14 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import * as Location from "expo-location";
-import {
-  View,
-  Text,
-  Button,
-  StyleSheet,
-  Alert,
-  Modal,
-  Pressable,
-} from "react-native";
+import { View, Text, Button, StyleSheet, Alert, Modal } from "react-native";
 import { connect } from "react-redux";
 import { CAMERA_SCREEN, PERSON_DETAIL_SCREEN } from "../../ScreenName";
 import * as TaskManager from "expo-task-manager";
@@ -17,6 +9,7 @@ import {
   changeCurrentJourneyPointList,
   changeTrackingStatus,
   journeyReset,
+  saveCurrentJourney,
 } from "../../../redux/actions/TrackAction";
 
 import InputBox from "../../../components/common/InputBox";
@@ -50,6 +43,7 @@ function JourneyTrack({
   pointList,
   journeyName,
   journeyReset,
+  saveCurrentJourney,
   changeTrackingStatus,
   changeCurrentJourneyName,
   changeCurrentJourneyPointList,
@@ -62,6 +56,7 @@ function JourneyTrack({
     latitudeDelta: 0.02,
   });
 
+  const [modalVisible, setModalVisible] = useState(false);
   //notification
   const [expoPushToken, setExpoPushToken] = useState("");
   const [notification, setNotification] = useState(false);
@@ -83,33 +78,36 @@ function JourneyTrack({
     };
   }, []);
 
-  // useEffect(() => {
-  //   if (pointList.length == 0) {
-  //     setRegion({
-  //       latitude: "37.32837938",
-  //       longitude: "-122.02686219",
-  //       latitudeDelta: 0.009,
-  //       longitudeDelta: 0.009,
-  //     });
-  //   } else {
-  //     //check lai ki
-  //     let newRegion = updateRegion(pointList[pointList.length - 1], region);
-  //     if (newRegion) {
-  //       console.log("change region============");
-  //       setRegion(newRegion);
-  //     }
-  //   }
-  // }, [pointList]);
+  useEffect(() => {
+    if (pointList.length < 1) {
+      setRegion({
+        latitude: "37.32837938",
+        longitude: "-122.02686219",
+        latitudeDelta: 0.009,
+        longitudeDelta: 0.009,
+      });
+    } else {
+      //check lai ki
+      let newRegion = updateRegion(pointList[pointList.length - 1], region);
+      if (newRegion) {
+        // console.log("change region============");
+        setRegion(newRegion);
+      }
+    }
+  }, [pointList]);
 
-  // const setCurrentRegion = ()=>{
-  //   if (pointList.length != 0) {
-  //     let newRegion = updateRegion(pointList[pointList.length - 1], region);
-  //     if (newRegion) {
-  //       console.log("change region============");
-  //       setRegion(newRegion);
-  //     }
-  //   }
-  // }
+  const setCurrentRegion = () => {
+    if (pointList.length > 1) {
+      const { coords } = pointList[pointList.length - 1];
+
+      setRegion({
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        latitudeDelta: 0.009,
+        longitudeDelta: 0.009,
+      });
+    }
+  };
 
   const getPersonInfor = async () => {
     if (pointList.length) {
@@ -121,7 +119,6 @@ function JourneyTrack({
     }
   };
 
-  const [modalVisible, setModalVisible] = useState(false);
   TaskManager.defineTask("TRACK", async ({ data: { locations }, error }) => {
     if (error) {
       console.log("error----", error.message);
@@ -136,7 +133,7 @@ function JourneyTrack({
       });
       console.log(streetName[0].street);
       locations[0].streetName = streetName[0].street;
-      console.log("======", locations[0]);
+      // console.log("======", locations[0]);
 
       //check change stree
       let length = pointList.length;
@@ -157,7 +154,6 @@ function JourneyTrack({
       // if (new Date().getMinutes() % 2 == 0) {
       //   await schedulePushNotification(streetName[0].street);
       // }
-
       changeCurrentJourneyPointList(locations[0]);
     }
   });
@@ -183,6 +179,12 @@ function JourneyTrack({
 
   const saveJourney = () => {
     //save journey to the firebase firestore
+    if (journeyName.length == 0) {
+      setModalVisible(true);
+    } else {
+      stopRecord();
+      saveCurrentJourney();
+    }
   };
 
   const setNameJourney = () => {
@@ -295,9 +297,13 @@ function JourneyTrack({
 
       <View style={styles.buttonBox}>
         {_renderStartOrResumeButton()}
-
         <ButtonBox title={"tắt"} onPress={stopRecord} />
-        <ButtonBox title={"kết thúc"} onPress={saveJourney} />
+        <ButtonIcon
+          onPress={setCurrentRegion}
+          name="not-listed-location"
+          size={50}
+          color={color.aqua}
+        />
         <ButtonIcon
           onPress={addPicture}
           name="camera-alt"
@@ -306,28 +312,29 @@ function JourneyTrack({
         />
       </View>
       {_renderModalSetName()}
-
-      <MapView style={{ height: "100%" }} region={region}>
-        {pointList.map((point) => {
-          if (pointList.indexOf(point) > 0) {
-            return (
-              <MapView.Marker
-                coordinate={{
-                  latitude: point.coords.latitude,
-                  longitude: point.coords.longitude,
-                }}
-                image={
-                  pointList.indexOf(point) == 1
-                    ? pointIcon.start
-                    : pointList.indexOf(point) == pointList.length - 1
-                    ? pointIcon.current
-                    : pointIcon.point
-                }
-              />
-            );
-          }
-        })}
-      </MapView>
+      <View style={{ height: "100%", position: "relative" }}>
+        <MapView style={{ flex: 1 }} region={region}>
+          {pointList.map((point) => {
+            if (pointList.indexOf(point) > 0) {
+              return (
+                <MapView.Marker
+                  coordinate={{
+                    latitude: point.coords.latitude,
+                    longitude: point.coords.longitude,
+                  }}
+                  image={
+                    pointList.indexOf(point) == 1
+                      ? pointIcon.start
+                      : pointList.indexOf(point) == pointList.length - 1
+                      ? pointIcon.current
+                      : pointIcon.point
+                  }
+                />
+              );
+            }
+          })}
+        </MapView>
+      </View>
     </View>
   );
 }
@@ -346,10 +353,12 @@ export default connect(mapStateToProps, {
   changeTrackingStatus,
   changeCurrentJourneyName,
   changeCurrentJourneyPointList,
+  saveCurrentJourney,
 })(JourneyTrack);
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     paddingTop: 50,
   },
   modalButtonBox: {
@@ -379,17 +388,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-  },
-  button: {
-    borderRadius: 20,
-    padding: 10,
-    elevation: 2,
-  },
-  buttonOpen: {
-    backgroundColor: "#F194FF",
-  },
-  buttonClose: {
-    backgroundColor: "#2196F3",
   },
   textStyle: {
     color: "white",

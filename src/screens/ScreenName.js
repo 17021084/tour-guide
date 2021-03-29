@@ -16,6 +16,6 @@ export const JOURNEY_LIST_SCREEN = "Journey List";
 //Journey Screen
 export const JOURNEY_SCREEN = "Journey List";
 export const JOURNEY_TRACK_SCREEN = "Tracking";
-export const JOURNEY_DETAIL_SCREEN = "Journey Detail";
+export const JOURNEY_DETAIL_SCREEN = "Hành trình";
 export const CAMERA_SCREEN = "Camera ";
 export const POST_SCREEN = "POST";

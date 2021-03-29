@@ -1,8 +1,24 @@
 import * as firebase from "firebase";
 import React from "react";
-import { View, Text, Button, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  Button,
+  StyleSheet,
+  Modal,
+  Dimensions,
+} from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
 import { connect } from "react-redux";
 import { useState } from "react/cjs/react.development";
+import ButtonBox from "../../../components/common/ButtonBox";
+import ButtonIcon from "../../../components/common/ButtonIcon";
+import InputBox from "../../../components/common/InputBox";
+import { color } from "../../../config/appConfig";
+import {
+  changeCurrentJourneyName,
+  saveCurrentJourney,
+} from "../../../redux/actions/TrackAction";
 import { JOURNEY_DETAIL_SCREEN } from "../../ScreenName";
 
 function JourneyList({
@@ -11,9 +27,10 @@ function JourneyList({
   pointList,
   journeyName,
   journeyReset,
+  changeCurrentJourneyName,
 }) {
   const [saved, setSaved] = useState(null);
-
+  const [modalVisible, setModalVisible] = useState(false);
   //Handle waiting to upload each file using promise
   const uploadImageAsPromise = (point, name, index) => {
     return new Promise(async function (resolve, reject) {
@@ -56,8 +73,6 @@ function JourneyList({
     });
   };
 
-  const uploadJourneyToFireStore = (pointList) => {};
-
   const saveTripIntoFirebase = async () => {
     Promise.all(
       pointList.map((point) => {
@@ -79,7 +94,7 @@ function JourneyList({
           .doc(firebase.auth().currentUser.uid)
           .collection(journeyName)
           .add({
-            journeyName:journeyName,
+            journeyName: journeyName,
             pointList: value,
           })
           .then((res) => {
@@ -93,33 +108,148 @@ function JourneyList({
         console.log("error when update image to storage", error);
       });
   };
+  const setNameJourney = () => {
+    changeCurrentJourneyName(currentJourneyName);
+    setModalVisible(!modalVisible);
+  };
+
+  const _renderModalSetName = () => (
+    <Modal
+      animationType="fade"
+      transparent={true}
+      visible={modalVisible}
+      onRequestClose={() => {
+        Alert.alert("Modal has been closed.");
+        setModalVisible(!modalVisible);
+      }}
+    >
+      <View style={styles.centeredView}>
+        <View style={styles.modalView}>
+          <View style={styles.inputName}>
+            <InputBox
+              onChangeText={(name) => setCurrentJourneyName(name)}
+              title={"Tên Hành Trình"}
+              placeholder={journeyName || "Hãy nhập tên hành trình mới"}
+            />
+          </View>
+
+          <View style={styles.modalButtonBox}>
+            <Button
+              style={[styles.button, styles.buttonClose]}
+              onPress={setNameJourney}
+              title="Lưu"
+            />
+            <Button
+              style={[styles.button, styles.buttonClose]}
+              onPress={() => setModalVisible(!modalVisible)}
+              title="Huỷ"
+            />
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
 
   return (
-    <View>
-      <Text>Journey List screen</Text>
-      <Text>Journey List screen</Text>
-      <Text>Journey List screen</Text>
-      <Text>Journey List screen</Text>
-      <Text>Journey List screen</Text>
-      <Text>Journey List screen</Text>
+    <View style={styles.container}>
+      <View style={styles.hearderContainer}>
+        <View style={styles.inforBox}>
+          <Text style={styles.title}>Tên hành trình: </Text>
+          <Text style={styles.titleValue}> {journeyName || "chưa đặt"} </Text>
+          <ButtonIcon
+            onPress={() => setModalVisible(true)}
+            style={styles.changeButton}
+            name={"drive-file-rename-outline"}
+            color={color.aqua}
+            size={35}
+          />
+        </View>
+        <View style={styles.inforBox}>
+          <Text style={styles.title}>Điểm bắt đầu : </Text>
+          <Text style={styles.titleValue}>
+            {" "}
+            {pointList.length ? pointList[0].streetName : "Chưa đi"}
+          </Text>
+        </View>
+        <View style={styles.inforBox}>
+          <Text style={styles.title}>Điểm hiện tại : </Text>
+          <Text style={styles.titleValue}>
+            {" "}
+            {pointList.length
+              ? pointList[pointList.length - 1].streetName
+              : "Chưa đi "}
+          </Text>
+        </View>
+        <View style={styles.inforBox}>
+          <Text style={styles.title}> Trạng thái : </Text>
+          <Text style={styles.titleValue}>
+            {trackingStatus ? "Đang theo dõi " : "Đang dừng"}
+          </Text>
+        </View>
+        <Button
+          title={"Lưu hành trình lên đám mây "}
+          onPress={saveTripIntoFirebase}
+        />
+      </View>
 
-      <Text> Chuyen di hien tai </Text>
-      <Text>Ten chuyen di: {journeyName || "chưa đặt"} </Text>
-      <Text>Trạng thái: {trackingStatus ? "Đang theo dõi " : "Đang dừng"}</Text>
-      <Text> Đi qua bao nhiêu con đường: </Text>
-      <Text>luu hanh trinh </Text>
+      {_renderModalSetName()}
+      <View style={styles.mainContainer}>
+        <ScrollView>
+         
+          <View style={styles.journeyBox}>
+            <View style = {styles.contentBox}>
+              <View style={styles.inforBox}>
+                <Text style={styles.title}>Tên hành trình: </Text>
+                <Text style={styles.titleValue}>{"chưa đặt"}</Text>
+              </View>
+              <View style={styles.inforBox}>
+                <Text style={styles.title}>Điểm bắt đầu : </Text>
+                <Text style={styles.titleValue}>{"Chưa đi"}</Text>
+              </View>
+              <View style={styles.inforBox}>
+                <Text style={styles.title}>Điểm kết thúc : </Text>
+                <Text style={styles.titleValue}>{"Chưa đi "}</Text>
+              </View>
+            </View>
+            <View style={styles.buttonDetail}>
+              <ButtonBox
+                title={"Chi tiết"}
+                onPress={() => {
+                  navigation.navigate(JOURNEY_DETAIL_SCREEN);
+                }}
+              />
+            </View>
+          </View>
 
-      <Text>Modal hien ra </Text>
-      <Button
-        title={"Lưu hành trình lên đám mây "}
-        onPress={saveTripIntoFirebase}
-      />
-      <Button
-        title={" Journey Detail"}
-        onPress={() => {
-          navigation.navigate(JOURNEY_DETAIL_SCREEN);
-        }}
-      />
+          
+          <View style={styles.journeyBox}>
+            <View style = {styles.contentBox}>
+              <View style={styles.inforBox}>
+                <Text style={styles.title}>Tên hành trình: </Text>
+                <Text style={styles.titleValue}>{"chưa đặt"}</Text>
+              </View>
+              <View style={styles.inforBox}>
+                <Text style={styles.title}>Điểm bắt đầu : </Text>
+                <Text style={styles.titleValue}>{"Chưa đi"}</Text>
+              </View>
+              <View style={styles.inforBox}>
+                <Text style={styles.title}>Điểm kết thúc : </Text>
+                <Text style={styles.titleValue}>{"Chưa đi "}</Text>
+              </View>
+            </View>
+            <View style={styles.buttonDetail}>
+              <ButtonBox
+                title={"Chi tiết"}
+                onPress={() => {
+                  navigation.navigate(JOURNEY_DETAIL_SCREEN);
+                }}
+              />
+            </View>
+          </View>
+
+
+        </ScrollView>
+      </View>
     </View>
   );
 }
@@ -131,8 +261,79 @@ const mapStateToProps = (state) => {
     journeyName: state.trackState.currentJourney.journeyName,
   };
 };
-export default connect(mapStateToProps)(JourneyList);
+export default connect(mapStateToProps, { changeCurrentJourneyName })(
+  JourneyList
+);
 
 const styles = StyleSheet.create({
-  container: {},
+  modalButtonBox: {
+    flexDirection: "row",
+  },
+  inputName: {
+    height: 100,
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22,
+    height: 100,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  container: {
+    flex: 1,
+    paddingTop: 60,
+    paddingHorizontal: 10,
+  },
+  titleValue: {
+    flex: 2,
+    fontSize: 17,
+    fontFamily: "open-sans-bold",
+    paddingVertical: 1,
+  },
+  title: {
+    fontSize: 17,
+    fontFamily: "open-sans",
+    paddingVertical: 3,
+  },
+  hearderContainer: {
+    borderBottomColor: color.green,
+    borderBottomWidth: 1,
+    paddingBottom: 10,
+  },
+  inforBox: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  journeyBox: {
+    
+    borderBottomColor: color.green,
+    borderBottomWidth: 1,
+    paddingBottom: 10,
+    flexDirection:'row',
+  },
+  contentBox:{
+    flex:1,
+  },
+  mainContainer: {
+    flex:1,
+    marginVertical: 20,
+  },
+  buttonDetail: {
+  },
 });
