@@ -4,6 +4,7 @@ import {
   JOURNEY_RESET,
   TRACKING_STATUS_CHANGE,
   UPDATE_JOURNEY_LIST,
+  ADD_CURRENT_TO_JOURNEY_LIST,
 } from "./type";
 
 export const journeyReset = () => {
@@ -14,6 +15,13 @@ export const journeyReset = () => {
 
 export const fetchJourneyList = () => {
   return (dispatch) => {};
+};
+
+export const addToList = () => {
+  return (dispatch) => {
+    dispatch({ type: ADD_CURRENT_TO_JOURNEY_LIST });
+    dispatch(journeyReset());
+  };
 };
 
 export const changeTrackingStatus = (status) => {

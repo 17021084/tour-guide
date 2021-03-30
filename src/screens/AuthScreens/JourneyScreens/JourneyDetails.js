@@ -18,6 +18,7 @@ import { PERSON_DETAIL_SCREEN } from "../../ScreenName.js";
 const width = Dimensions.get("window").width;
 
 function JourneyDetails({ navigation }) {
+  const flatListRef = useRef();
   const Person = {
     thumbnail: "https://www.w3schools.com/w3css/img_lights.jpg",
     label: "label",
@@ -61,20 +62,59 @@ function JourneyDetails({ navigation }) {
     }
   };
 
+  const renderItem = () => (
+    <View style={styles.pointCard}>
+      <TouchableOpacity onPress={setGrow}>
+        <Image
+          style={styles.imagePoint}
+          source={{ uri: "https://www.w3schools.com/w3css/img_lights.jpg" }}
+        />
+        <Text style={styles.postPoint}>
+          https://www.w3schools.com/w3css/img_lights.jpg
+          https://www.w3schools.com/w3css/img_lights.jpg
+          https://www.w3schools.com/w3css/img_lights.jpg
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
+  const DATA = [
+    {
+      id: 1,
+      content: "1231312",
+    },
+    {
+      id: 4,
+      content: "1231312",
+    },
+    {
+      id: 3,
+      content: "1231312",
+    },
+    {
+      id: 2,
+      content: "1231312",
+    },
+  ];
   return (
     <View style={styles.container}>
       <MapView region={region} style={styles.mapView}></MapView>
 
       <View style={styles.personDetail}>
-        <ButtonIcon
-          name={"location-history"}
-          color={color.aqua}
-          onPress={() => {
-            // navigation.navigate(PERSON_DETAIL_SCREEN);
-          }}
-        />
+        <View style={styles.streetName}>
+          <Text style={styles.streetNameText}>Đường Nguyễn Chí Thanh</Text>
+        </View>
+        <View>
+          <ButtonIcon
+            name={"location-history"}
+            color={color.aqua}
+            onPress={() => {
+              // navigation.navigate(PERSON_DETAIL_SCREEN);
+              flatListRef.current.scrollToIndex({ animated: true, index: 2 });
+            }}
+          />
+        </View>
       </View>
-      <Animated.ScrollView
+      <Animated.FlatList
         style={[
           styles.ScrollView,
           {
@@ -85,23 +125,14 @@ function JourneyDetails({ navigation }) {
         // ref={(ref)=>{
         //   ref.
         // }}
+
+        ref={(ref) => {
+          flatListRef.current = ref;
+        }}
+        data={DATA}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id}
       >
-        <View style={styles.pointCard}>
-          <TouchableOpacity onPress={setGrow}>
-            <Image
-              style={styles.imagePoint}
-              source={{ uri: "https://www.w3schools.com/w3css/img_lights.jpg" }}
-            />
-            <Text style={styles.postPoint}>
-              https://www.w3schools.com/w3css/img_lights.jpg
-              https://www.w3schools.com/w3css/img_lights.jpg
-              https://www.w3schools.com/w3css/img_lights.jpg
-              https://www.w3schools.com/w3css/img_lights.jpg
-              https://www.w3schools.com/w3css/img_lights.jpg
-              https://www.w3schools.com/w3css/img_lights.jpg
-            </Text>
-          </TouchableOpacity>
-        </View>
         {/* ======================== */}
 
         <View style={styles.pointCard}>
@@ -129,7 +160,7 @@ function JourneyDetails({ navigation }) {
           </TouchableOpacity>
         </View>
         {/* ======================== */}
-      </Animated.ScrollView>
+      </Animated.FlatList>
     </View>
   );
 }
@@ -173,10 +204,24 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 20,
   },
-  personDetail:{
-    position:'absolute',
-    right:0
-  }
+  personDetail: {
+    paddingLeft: 10,
+    // alignItems: "center",
+    position: "absolute",
+    flexDirection: "row",
+    // right: 0,
+  },
+  streetName: {
+    flex: 1,
+    height: 50,
+    backgroundColor: "white",
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  streetNameText: {
+    fontFamily: "open-sans-bold",
+  },
 });
 
 const mapStateToProps = (state, ownProps) => {

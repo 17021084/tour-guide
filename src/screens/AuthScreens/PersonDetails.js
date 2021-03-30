@@ -21,20 +21,20 @@ function PersonDetails({
   const [isBooked, setIsBooked] = useState();
   const { person } = route.params;
   useEffect(() => {
-   if(person){
-    let exsist = false;
-    for (let i = 0; i < bookmarkList.length; ++i) {
-      if (bookmarkList[i].meta.pageID == person.meta.pageID) {
-        exsist = true;
-        break;
+    if (person) {
+      let exsist = false;
+      for (let i = 0; i < bookmarkList.length; ++i) {
+        if (bookmarkList[i].meta.pageID == person.meta.pageID) {
+          exsist = true;
+          break;
+        }
+      }
+      if (exsist) {
+        setIsBooked(true);
+      } else {
+        setIsBooked(false);
       }
     }
-    if (exsist) {
-      setIsBooked(true);
-    } else {
-      setIsBooked(false);
-    }
-   }
   }, [bookmarkList, person]);
 
   const onBookmark = () => {
@@ -105,11 +105,13 @@ function PersonDetails({
           <View style={styles.header}>
             <Image
               style={styles.image}
-              source={{
-                uri:
-                  person.thumbnail ||
-                  "https://png.pngtree.com/png-clipart/20190619/original/pngtree-vector-valid-user-icon-png-image_3989945.jpg",
-              }}
+              source={
+                person.thumbnail
+                  ? {
+                      uri: person.thumbnail,
+                    }
+                  : require("../../../assets/noImage.png")
+              }
             />
             <View style={styles.intro}>
               <Text style={styles.personName}> {person.label} </Text>

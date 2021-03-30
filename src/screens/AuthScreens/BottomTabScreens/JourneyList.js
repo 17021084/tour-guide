@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Modal,
   Dimensions,
+  ActivityIndicator,
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { connect } from "react-redux";
@@ -26,10 +27,11 @@ function JourneyList({
   trackingStatus,
   pointList,
   journeyName,
-  journeyReset,
+  saveCurrentJourney,
   changeCurrentJourneyName,
 }) {
-  const [saved, setSaved] = useState(null);
+  const [currentJourneyName, setCurrentJourneyName] = useState(journeyName);
+  const [isSaving, setIsSaving] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   //Handle waiting to upload each file using promise
   const uploadImageAsPromise = (point, name, index) => {
@@ -74,43 +76,51 @@ function JourneyList({
   };
 
   const saveTripIntoFirebase = async () => {
-    Promise.all(
-      pointList.map((point) => {
-        if (point.imageURI !== undefined) {
-          return uploadImageAsPromise(
-            point,
-            journeyName,
-            pointList.indexOf(point)
-          );
-        } else {
-          return point;
-        }
-      })
-    )
-      .then((value) => {
-        firebase
-          .firestore()
-          .collection("journeys")
-          .doc(firebase.auth().currentUser.uid)
-          .collection(journeyName)
-          .add({
-            journeyName: journeyName,
-            pointList: value,
-          })
-          .then((res) => {
-            console.log("Upload success");
-          })
-          .catch((error) => {
-            console.log("Error occour in upload journey trips to fireStore");
-          });
-      })
-      .catch((error) => {
-        console.log("error when update image to storage", error);
-      });
+    if (journeyName.length == 0) {
+      setModalVisible(true);
+    } else {
+      setIsSaving(true);
+      Promise.all(
+        pointList.map((point) => {
+          if (point.imageURI !== undefined) {
+            return uploadImageAsPromise(
+              point,
+              journeyName,
+              pointList.indexOf(point)
+            );
+          } else {
+            return point;
+          }
+        })
+      )
+        .then((value) => {
+          firebase
+            .firestore()
+            .collection("journeys")
+            .doc(firebase.auth().currentUser.uid)
+            .collection(journeyName)
+            .add({
+              journeyName: journeyName,
+              pointList: value,
+            })
+            .then((res) => {
+              console.log("Upload success");
+              setIsSaving(false);
+              saveCurrentJourney();
+            })
+            .catch((error) => {
+              setIsSaving(false);
+              console.log("Error occour in upload journey trips to fireStore");
+            });
+        })
+        .catch((error) => {
+          console.log("error when update image to storage", error);
+        });
+    }
   };
   const setNameJourney = () => {
-    changeCurrentJourneyName(currentJourneyName);
     setModalVisible(!modalVisible);
+    changeCurrentJourneyName(currentJourneyName);
   };
 
   const _renderModalSetName = () => (
@@ -186,18 +196,21 @@ function JourneyList({
             {trackingStatus ? "Đang theo dõi " : "Đang dừng"}
           </Text>
         </View>
-        <Button
-          title={"Lưu hành trình lên đám mây "}
-          onPress={saveTripIntoFirebase}
-        />
+        {isSaving ? (
+          <ActivityIndicator size={"large"} color={color.aqua} />
+        ) : (
+          <Button
+            title={"Lưu hành trình lên đám mây "}
+            onPress={saveTripIntoFirebase}
+          />
+        )}
       </View>
 
       {_renderModalSetName()}
       <View style={styles.mainContainer}>
         <ScrollView>
-         
           <View style={styles.journeyBox}>
-            <View style = {styles.contentBox}>
+            <View style={styles.contentBox}>
               <View style={styles.inforBox}>
                 <Text style={styles.title}>Tên hành trình: </Text>
                 <Text style={styles.titleValue}>{"chưa đặt"}</Text>
@@ -221,9 +234,8 @@ function JourneyList({
             </View>
           </View>
 
-          
           <View style={styles.journeyBox}>
-            <View style = {styles.contentBox}>
+            <View style={styles.contentBox}>
               <View style={styles.inforBox}>
                 <Text style={styles.title}>Tên hành trình: </Text>
                 <Text style={styles.titleValue}>{"chưa đặt"}</Text>
@@ -246,8 +258,6 @@ function JourneyList({
               />
             </View>
           </View>
-
-
         </ScrollView>
       </View>
     </View>
@@ -261,9 +271,10 @@ const mapStateToProps = (state) => {
     journeyName: state.trackState.currentJourney.journeyName,
   };
 };
-export default connect(mapStateToProps, { changeCurrentJourneyName })(
-  JourneyList
-);
+export default connect(mapStateToProps, {
+  saveCurrentJourney,
+  changeCurrentJourneyName,
+})(JourneyList);
 
 const styles = StyleSheet.create({
   modalButtonBox: {
@@ -321,19 +332,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   journeyBox: {
-    
     borderBottomColor: color.green,
     borderBottomWidth: 1,
     paddingBottom: 10,
-    flexDirection:'row',
+    flexDirection: "row",
   },
-  contentBox:{
-    flex:1,
+  contentBox: {
+    flex: 1,
   },
   mainContainer: {
-    flex:1,
+    flex: 1,
     marginVertical: 20,
   },
-  buttonDetail: {
-  },
+  buttonDetail: {},
 });
