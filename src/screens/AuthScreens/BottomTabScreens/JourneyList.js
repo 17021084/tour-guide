@@ -18,6 +18,7 @@ import InputBox from "../../../components/common/InputBox";
 import { color } from "../../../config/appConfig";
 import {
   changeCurrentJourneyName,
+  fetchJourneyList,
   saveCurrentJourney,
 } from "../../../redux/actions/TrackAction";
 import { JOURNEY_DETAIL_SCREEN } from "../../ScreenName";
@@ -29,6 +30,8 @@ function JourneyList({
   journeyName,
   saveCurrentJourney,
   changeCurrentJourneyName,
+  fetchJourneyList,
+  journeyList
 }) {
   const [currentJourneyName, setCurrentJourneyName] = useState(journeyName);
   const [isSaving, setIsSaving] = useState(false);
@@ -98,7 +101,7 @@ function JourneyList({
             .firestore()
             .collection("journeys")
             .doc(firebase.auth().currentUser.uid)
-            .collection(journeyName)
+            .collection('userJourneys')
             .add({
               journeyName: journeyName,
               pointList: value,
@@ -204,6 +207,11 @@ function JourneyList({
             onPress={saveTripIntoFirebase}
           />
         )}
+        <Button
+          style={styles.button}
+          onPress={fetchJourneyList}
+          title="fet data"
+        />
       </View>
 
       {_renderModalSetName()}
@@ -269,11 +277,13 @@ const mapStateToProps = (state) => {
     trackingStatus: state.trackState.trackingStatus,
     pointList: state.trackState.currentJourney.pointList,
     journeyName: state.trackState.currentJourney.journeyName,
+    journeyList: state.trackState.journeyList,
   };
 };
 export default connect(mapStateToProps, {
   saveCurrentJourney,
   changeCurrentJourneyName,
+  fetchJourneyList,
 })(JourneyList);
 
 const styles = StyleSheet.create({

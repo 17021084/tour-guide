@@ -21,16 +21,23 @@ import JourneyDetails from "./JourneyScreens/JourneyDetails";
 import { connect } from "react-redux";
 import { fetchBookmark } from "../../redux/actions/UserAction";
 import Concern from "./Concern";
+import { fetchJourneyList } from "../../redux/actions/TrackAction";
 
 const Stack = createStackNavigator();
 const headerOption = { headerShown: true };
 
-function AuthScreens({ fetchBookmark, bookmarkLoaded }) {
+function AuthScreens({
+  fetchBookmark,
+  bookmarkLoaded,
+  fetchJourneyList,
+  journeyListFetched,
+}) {
   useEffect(() => {
     fetchBookmark();
+    fetchJourneyList();
   }, []);
 
-  if (!bookmarkLoaded) {
+  if (!bookmarkLoaded || !journeyListFetched) {
     return (
       <View
         style={{ flex: 1, justifyContent: "center", alignContent: "center" }}
@@ -80,6 +87,9 @@ function AuthScreens({ fetchBookmark, bookmarkLoaded }) {
 const mapStateToProps = (state) => {
   return {
     bookmarkLoaded: state.userState.bookmarkLoaded,
+    journeyListFetched: state.trackState.journeyListFetched,
   };
 };
-export default connect(mapStateToProps, { fetchBookmark })(AuthScreens);
+export default connect(mapStateToProps, { fetchBookmark, fetchJourneyList })(
+  AuthScreens
+);

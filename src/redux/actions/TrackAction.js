@@ -1,3 +1,4 @@
+import * as firebase from "firebase";
 import {
   CURRENT_JOURNEY_NAME_CHANGE,
   CURRENT_JOURNEY_POINTS_LIST_CHANGE,
@@ -5,6 +6,7 @@ import {
   TRACKING_STATUS_CHANGE,
   UPDATE_JOURNEY_LIST,
   ADD_CURRENT_TO_JOURNEY_LIST,
+  JOURNEY_LIST_FETCHED,
 } from "./type";
 
 export const journeyReset = () => {
@@ -14,13 +16,28 @@ export const journeyReset = () => {
 };
 
 export const fetchJourneyList = () => {
-  return (dispatch) => {};
+  return (dispatch) => {
+    firebase
+      .firestore()
+      .collection("journeys")
+      .doc(firebase.auth().currentUser.uid)
+      .collection("userJourneys")
+      .onSnapshot((snapshot) => {
+        if (snapshot.docs.length > 0) {
+          let newJouneyList = [];
+          snapshot.forEach((doc) => {
+            newJouneyList.push(doc.data());
+          });
+          dispatch(updateJourneyList(newJouneyList));
+        }
+        dispatch(journeyListFetched());
+      });
+  };
 };
 
-export const addToList = () => {
-  return (dispatch) => {
-    dispatch({ type: ADD_CURRENT_TO_JOURNEY_LIST });
-    dispatch(journeyReset());
+const journeyListFetched = () => {
+  return {
+    type: JOURNEY_LIST_FETCHED,
   };
 };
 

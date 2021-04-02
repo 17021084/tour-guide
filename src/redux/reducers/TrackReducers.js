@@ -5,6 +5,7 @@ import {
   TRACKING_STATUS_CHANGE,
   JOURNEY_RESET,
   UPDATE_JOURNEY_LIST,
+  JOURNEY_LIST_FETCHED,
 } from "../actions/type";
 
 const initializeState = {
@@ -26,12 +27,18 @@ const initializeState = {
 
   trackingStatus: false, //going : true ,false. stop
   journeyList: [],
+  journeyListFetched: false,
 };
 
 // export const
 
 export default (state = initializeState, action) => {
   switch (action.type) {
+    case JOURNEY_LIST_FETCHED:
+      return {
+        ...state,
+        journeyListFetched: true,
+      };
     case JOURNEY_RESET:
       return {
         ...state,
