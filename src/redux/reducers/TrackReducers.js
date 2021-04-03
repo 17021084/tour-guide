@@ -35,9 +35,11 @@ const initializeState = {
 export default (state = initializeState, action) => {
   switch (action.type) {
     case JOURNEY_LIST_FETCHED:
+      console.log(action.payload)
       return {
         ...state,
         journeyListFetched: true,
+        journeyList: action.payload
       };
     case JOURNEY_RESET:
       return {

@@ -23,20 +23,20 @@ export const fetchJourneyList = () => {
       .doc(firebase.auth().currentUser.uid)
       .collection("userJourneys")
       .onSnapshot((snapshot) => {
+        let newJouneyList = [];
         if (snapshot.docs.length > 0) {
-          let newJouneyList = [];
           snapshot.forEach((doc) => {
             newJouneyList.push(doc.data());
           });
-          dispatch(updateJourneyList(newJouneyList));
         }
-        dispatch(journeyListFetched());
+        dispatch(journeyListFetched(newJouneyList));
       });
   };
 };
 
-const journeyListFetched = () => {
+const journeyListFetched = (list) => {
   return {
+    payload: list,
     type: JOURNEY_LIST_FETCHED,
   };
 };

@@ -9,7 +9,7 @@ import {
   Dimensions,
   ActivityIndicator,
 } from "react-native";
-import { ScrollView } from "react-native-gesture-handler";
+import { FlatList, ScrollView } from "react-native-gesture-handler";
 import { connect } from "react-redux";
 import { useState } from "react/cjs/react.development";
 import ButtonBox from "../../../components/common/ButtonBox";
@@ -31,7 +31,7 @@ function JourneyList({
   saveCurrentJourney,
   changeCurrentJourneyName,
   fetchJourneyList,
-  journeyList
+  journeyList,
 }) {
   const [currentJourneyName, setCurrentJourneyName] = useState(journeyName);
   const [isSaving, setIsSaving] = useState(false);
@@ -101,7 +101,7 @@ function JourneyList({
             .firestore()
             .collection("journeys")
             .doc(firebase.auth().currentUser.uid)
-            .collection('userJourneys')
+            .collection("userJourneys")
             .add({
               journeyName: journeyName,
               pointList: value,
@@ -162,6 +162,35 @@ function JourneyList({
       </View>
     </Modal>
   );
+  // console.log(journeyList);
+  // console.log('journeyList',journeyList[0][0]);
+
+  const renderItem = ({ item }) => (
+    <View style={styles.journeyBox}>
+      <View style={styles.contentBox}>
+        <View style={styles.inforBox}>
+          <Text style={styles.title}>Tên hành trình: </Text>
+          <Text style={styles.titleValue}>{item.journeyName}</Text>
+        </View>
+        <View style={styles.inforBox}>
+          <Text style={styles.title}>Điểm bắt đầu : </Text>
+          <Text style={styles.titleValue}>{item.pointList[0].streetName}</Text>
+        </View>
+        <View style={styles.inforBox}>
+          <Text style={styles.title}>Điểm kết thúc : </Text>
+          <Text style={styles.titleValue}>{item.pointList[item.pointList.length-1].streetName}</Text>
+        </View>
+      </View>
+      <View style={styles.buttonDetail}>
+        <ButtonBox
+          title={"Chi tiết"}
+          onPress={() => {
+            navigation.navigate(JOURNEY_DETAIL_SCREEN);
+          }}
+        />
+      </View>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
@@ -216,57 +245,12 @@ function JourneyList({
 
       {_renderModalSetName()}
       <View style={styles.mainContainer}>
-        <ScrollView>
-          <View style={styles.journeyBox}>
-            <View style={styles.contentBox}>
-              <View style={styles.inforBox}>
-                <Text style={styles.title}>Tên hành trình: </Text>
-                <Text style={styles.titleValue}>{"chưa đặt"}</Text>
-              </View>
-              <View style={styles.inforBox}>
-                <Text style={styles.title}>Điểm bắt đầu : </Text>
-                <Text style={styles.titleValue}>{"Chưa đi"}</Text>
-              </View>
-              <View style={styles.inforBox}>
-                <Text style={styles.title}>Điểm kết thúc : </Text>
-                <Text style={styles.titleValue}>{"Chưa đi "}</Text>
-              </View>
-            </View>
-            <View style={styles.buttonDetail}>
-              <ButtonBox
-                title={"Chi tiết"}
-                onPress={() => {
-                  navigation.navigate(JOURNEY_DETAIL_SCREEN);
-                }}
-              />
-            </View>
-          </View>
+      
 
-          <View style={styles.journeyBox}>
-            <View style={styles.contentBox}>
-              <View style={styles.inforBox}>
-                <Text style={styles.title}>Tên hành trình: </Text>
-                <Text style={styles.titleValue}>{"chưa đặt"}</Text>
-              </View>
-              <View style={styles.inforBox}>
-                <Text style={styles.title}>Điểm bắt đầu : </Text>
-                <Text style={styles.titleValue}>{"Chưa đi"}</Text>
-              </View>
-              <View style={styles.inforBox}>
-                <Text style={styles.title}>Điểm kết thúc : </Text>
-                <Text style={styles.titleValue}>{"Chưa đi "}</Text>
-              </View>
-            </View>
-            <View style={styles.buttonDetail}>
-              <ButtonBox
-                title={"Chi tiết"}
-                onPress={() => {
-                  navigation.navigate(JOURNEY_DETAIL_SCREEN);
-                }}
-              />
-            </View>
-          </View>
-        </ScrollView>
+        <FlatList data={journeyList} renderItem={renderItem}
+        
+        keyExtractor={item => journeyList.indexOf(item)}
+        />
       </View>
     </View>
   );
