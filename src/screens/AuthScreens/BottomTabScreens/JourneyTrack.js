@@ -169,12 +169,12 @@ function JourneyTrack({
   };
 
   const stopRecord = () => {
-    if (trackingStatus) {
+    // if (trackingStatus) {
       //if true it mean its tracking. t
       Location.stopLocationUpdatesAsync("TRACK");
       changeTrackingStatus(false);
       // changeCurrentJourneyPointList(coord2);
-    }
+    // }
   };
 
   const deleteJourney = () => {

@@ -8,43 +8,42 @@ import {
   Animated,
 } from "react-native";
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
-import MapView from "react-native-maps";
+import MapView, { Marker } from "react-native-maps";
 import { connect } from "react-redux";
 import { useState, useRef } from "react/cjs/react.development";
 import ButtonIcon from "../../../components/common/ButtonIcon.js";
-import { color } from "../../../config/appConfig.js";
+import { color, pointIcon } from "../../../config/appConfig.js";
 import { PERSON_DETAIL_SCREEN } from "../../ScreenName.js";
+import moment from "moment";
 
 const width = Dimensions.get("window").width;
 
-function JourneyDetails({ navigation }) {
+function JourneyDetails({ navigation, route }) {
+  const { journey } = route.params;
+  const { data } = journey;
+  const pointList = data.pointList;
+  const listPost = data.pointList.filter((post) => {
+    if (post.downloadURL) {
+      return post;
+    }
+  });
+
   const flatListRef = useRef();
+
   const Person = {
     thumbnail: "https://www.w3schools.com/w3css/img_lights.jpg",
     label: "label",
     termDescription: "abceasdfasdf",
   };
-  const region = {
-    latitude: 21.0281465,
-    longitude: 105.7882117,
+  const [region, setRegion] = useState({
+    latitude: pointList[0].coords.latitude,
+    longitude: pointList[0].coords.longitude,
     latitudeDelta: 0.008,
     longitudeDelta: 0.008,
-  };
+  });
 
   const [growUp, setGrowUp] = useState(false);
   const growAni = useRef(new Animated.Value(100)).current;
-
-  // const fadeIn = () => {
-  //   // Will change fadeAnim value to 1 in 5 seconds
-  // };
-
-  // const fadeOut = () => {
-  //   // Will change fadeAnim value to 0 in 5 seconds
-  //   Animated.timing(growAni, {
-  //     toValue: 100,
-  //     duration: 5000,
-  //   }).start();
-  // };
 
   const setGrow = () => {
     if (growUp) {
@@ -62,55 +61,73 @@ function JourneyDetails({ navigation }) {
     }
   };
 
-  const renderItem = () => (
+  const renderItem = ({ item }) => (
     <View style={styles.pointCard}>
       <TouchableOpacity onPress={setGrow}>
-        <Image
-          style={styles.imagePoint}
-          source={{ uri: "https://www.w3schools.com/w3css/img_lights.jpg" }}
-        />
-        <Text style={styles.postPoint}>
-          https://www.w3schools.com/w3css/img_lights.jpg
-          https://www.w3schools.com/w3css/img_lights.jpg
-          https://www.w3schools.com/w3css/img_lights.jpg
-        </Text>
+        <Image style={styles.imagePoint} source={{ uri: item.downloadURL }} />
+        <Text style={styles.postPoint}>{item.caption}</Text>
       </TouchableOpacity>
     </View>
   );
-  const DATA = [
-    {
-      id: 1,
-      content: "1231312",
-    },
-    {
-      id: 4,
-      content: "1231312",
-    },
-    {
-      id: 3,
-      content: "1231312",
-    },
-    {
-      id: 2,
-      content: "1231312",
-    },
-  ];
+  const setCurrentRegion = () => {
+    setRegion({
+      latitude: 21.0281465,
+      longitude: 105.7882117,
+      latitudeDelta: 0.008,
+      longitudeDelta: 0.008,
+    });
+  };
   return (
     <View style={styles.container}>
-      <MapView region={region} style={styles.mapView}></MapView>
+      <MapView region={region} style={styles.mapView}>
+        {pointList.map((point) => {
+          if (data.pointList.indexOf(point) > 0) {
+            return (
+              <TouchableOpacity>
+                <MapView.Marker
+                  coordinate={{
+                    latitude: point.coords.latitude,
+                    longitude: point.coords.longitude,
+                  }}
+                  image={
+                    pointList.indexOf(point) == 1
+                      ? pointIcon.start
+                      : pointList.indexOf(point) == pointList.length - 1
+                      ? pointIcon.current
+                      : pointIcon.point
+                  }
+                />
+              </TouchableOpacity>
+            );
+          }
+        })}
+      </MapView>
 
       <View style={styles.personDetail}>
         <View style={styles.streetName}>
-          <Text style={styles.streetNameText}>Đường Nguyễn Chí Thanh</Text>
+          <Text style={styles.streetNameText}>
+            Hành trình: {journey.data.journeyName}
+          </Text>
+          <Text style={styles.streetNameText}>Địa chỉ: Nguyễn Chí Thanh</Text>
+          <Text style={styles.streetNameText}>
+            Thời điểm:{moment(Date.now()).format("llll")}
+          </Text>
         </View>
         <View>
           <ButtonIcon
+            // style={}
             name={"location-history"}
             color={color.aqua}
             onPress={() => {
               // navigation.navigate(PERSON_DETAIL_SCREEN);
               flatListRef.current.scrollToIndex({ animated: true, index: 2 });
             }}
+          />
+          <ButtonIcon
+            onPress={setCurrentRegion}
+            name="not-listed-location"
+            size={50}
+            color={color.aqua}
           />
         </View>
       </View>
@@ -122,45 +139,13 @@ function JourneyDetails({ navigation }) {
           },
         ]}
         horizontal={true}
-        // ref={(ref)=>{
-        //   ref.
-        // }}
-
         ref={(ref) => {
           flatListRef.current = ref;
         }}
-        data={DATA}
+        data={listPost}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
-      >
-        {/* ======================== */}
-
-        <View style={styles.pointCard}>
-          <TouchableOpacity>
-            <Image
-              style={styles.imagePoint}
-              source={{ uri: "https://www.w3schools.com/w3css/img_lights.jpg" }}
-            />
-            <Text style={styles.postPoint}>
-              https://www.w3schools.com/w3css/img_lights.jpg{" "}
-            </Text>
-          </TouchableOpacity>
-        </View>
-        {/* ======================== */}
-
-        <View style={styles.pointCard}>
-          <TouchableOpacity>
-            <Image
-              style={styles.imagePoint}
-              source={{ uri: "https://www.w3schools.com/w3css/img_lights.jpg" }}
-            />
-            <Text style={styles.postPoint}>
-              https://www.w3schools.com/w3css/img_lights.jpg{" "}
-            </Text>
-          </TouchableOpacity>
-        </View>
-        {/* ======================== */}
-      </Animated.FlatList>
+      ></Animated.FlatList>
     </View>
   );
 }
@@ -196,8 +181,9 @@ const styles = StyleSheet.create({
     borderRadius: 30,
   },
   postPoint: {
-    alignSelf: "center",
+    textAlign: "left",
     marginTop: 20,
+    padding: 10,
     flexWrap: "wrap",
   },
   ScrollView: {
@@ -206,18 +192,18 @@ const styles = StyleSheet.create({
   },
   personDetail: {
     paddingLeft: 10,
-    // alignItems: "center",
     position: "absolute",
     flexDirection: "row",
     // right: 0,
   },
   streetName: {
     flex: 1,
-    height: 50,
+    height: 100,
     backgroundColor: "white",
     borderRadius: 30,
-    justifyContent: "center",
-    alignItems: "center",
+    padding: 20,
+    // justifyContent: "center",
+    // alignItems: "center",
   },
   streetNameText: {
     fontFamily: "open-sans-bold",
