@@ -26,7 +26,10 @@ export const fetchJourneyList = () => {
         let newJouneyList = [];
         if (snapshot.docs.length > 0) {
           snapshot.forEach((doc) => {
-            newJouneyList.push(doc.data());
+            newJouneyList.push({
+              data: doc.data(),
+              id: doc.id 
+            });
           });
         }
         dispatch(journeyListFetched(newJouneyList));
@@ -75,8 +78,12 @@ const updateJourneyList = (journey) => {
 
 export const saveCurrentJourney = () => {
   return (dispatch, getState) => {
-    const currentJourney = getState().trackState.currentJourney;
-    dispatch(updateJourneyList(currentJourney));
+    // console.log('journer list o action ===== ',getState().trackState.journeyList.length )
+    // const currentJourney = {
+    //   data : getState().trackState.currentJourney,
+    //   id : Date.now().toString()
+    // };
+    // dispatch(updateJourneyList(currentJourney));
     dispatch(journeyReset());
   };
 };

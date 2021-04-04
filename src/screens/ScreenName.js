@@ -9,13 +9,13 @@ export const CONCERN_SCREEN = "Thông tin liên quan";
 
 // Bottom Tab Screen
 export const BOTTOM_TAB_SCREEN = "Màn hình chính";
-export const HOME_SCREEN = "Home";
-export const BOOKMARK_SCREEN = "Bookmark";
-export const JOURNEY_LIST_SCREEN = "Journey List";
+export const HOME_SCREEN = "Tra cứu";
+export const BOOKMARK_SCREEN = "Lưu trữ";
+export const JOURNEY_LIST_SCREEN = "các chuyến đi";
 
 //Journey Screen
 export const JOURNEY_SCREEN = "Journey List";
-export const JOURNEY_TRACK_SCREEN = "Tracking";
+export const JOURNEY_TRACK_SCREEN = "Theo dõi";
 export const JOURNEY_DETAIL_SCREEN = "Hành trình";
 export const CAMERA_SCREEN = "Camera ";
-export const POST_SCREEN = "POST";
+export const POST_SCREEN = "Đăng bài";

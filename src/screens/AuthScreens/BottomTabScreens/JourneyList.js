@@ -162,30 +162,28 @@ function JourneyList({
       </View>
     </Modal>
   );
-  // console.log(journeyList);
-  // console.log('journeyList',journeyList[0][0]);
 
   const renderItem = ({ item }) => (
     <View style={styles.journeyBox}>
       <View style={styles.contentBox}>
         <View style={styles.inforBox}>
           <Text style={styles.title}>Tên hành trình: </Text>
-          <Text style={styles.titleValue}>{item.journeyName}</Text>
+          <Text style={styles.titleValue}>{item.data.journeyName}</Text>
         </View>
         <View style={styles.inforBox}>
           <Text style={styles.title}>Điểm bắt đầu : </Text>
-          <Text style={styles.titleValue}>{item.pointList[0].streetName}</Text>
+          <Text style={styles.titleValue}>{item.data.pointList[0].streetName}</Text>
         </View>
         <View style={styles.inforBox}>
           <Text style={styles.title}>Điểm kết thúc : </Text>
-          <Text style={styles.titleValue}>{item.pointList[item.pointList.length-1].streetName}</Text>
+          <Text style={styles.titleValue}>{item.data.pointList[item.data.pointList.length-1].streetName}</Text>
         </View>
       </View>
       <View style={styles.buttonDetail}>
         <ButtonBox
           title={"Chi tiết"}
           onPress={() => {
-            navigation.navigate(JOURNEY_DETAIL_SCREEN);
+            navigation.navigate(JOURNEY_DETAIL_SCREEN ,{journey : item});
           }}
         />
       </View>
@@ -245,11 +243,9 @@ function JourneyList({
 
       {_renderModalSetName()}
       <View style={styles.mainContainer}>
-      
-
-        <FlatList data={journeyList} renderItem={renderItem}
-        
-        keyExtractor={item => journeyList.indexOf(item)}
+        <FlatList data={journeyList} 
+        renderItem={renderItem}
+        keyExtractor={item => item.id}
         />
       </View>
     </View>
