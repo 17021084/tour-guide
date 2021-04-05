@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import * as Location from "expo-location";
-import { View, Text, Button, StyleSheet, Alert, Modal } from "react-native";
+import { View, Text, Button, StyleSheet, Alert, Modal ,ActivityIndicator } from "react-native";
 import { connect } from "react-redux";
 import { CAMERA_SCREEN, PERSON_DETAIL_SCREEN } from "../../ScreenName";
 import * as TaskManager from "expo-task-manager";
@@ -49,12 +49,20 @@ function JourneyTrack({
   changeCurrentJourneyPointList,
 }) {
   const [currentJourneyName, setCurrentJourneyName] = useState(journeyName);
-  const [region, setRegion] = useState({
-    latitude: 37.32590459,
-    longitude: -122.02587676,
-    longitudeDelta: 0.02,
-    latitudeDelta: 0.02,
-  });
+  const [loaded,setLoaded]= useState(false)
+  const [region, setRegion] = useState({});
+
+  useEffect(async () => {
+    let location = await Location.getCurrentPositionAsync({});
+    let { latitude, longitude } = location.coords;
+    setRegion({
+      latitude,
+      longitude,
+      longitudeDelta: 0.02,
+      latitudeDelta: 0.02,
+    });
+    setLoaded(true)
+  }, []);
 
   const [modalVisible, setModalVisible] = useState(false);
   //notification
@@ -62,6 +70,61 @@ function JourneyTrack({
   const [notification, setNotification] = useState(false);
   const notificationListener = useRef();
   const responseListener = useRef();
+
+  //* Put all function in the dependencies list
+  useEffect(() => {
+    let subscriber = null;
+
+    const startTracking = async () => {
+      try {
+        subscriber = await Location.watchPositionAsync(
+          {
+            accuracy: Location.Accuracy.BestForNavigation,
+            timeInterval: TRACKING_INTERVAL, //* 1s
+            distanceInterval: DISTANCE_INTERVAL, //* 10 meters
+          },
+          trackAction
+        );
+      } catch (err) {
+        setError(err);
+      }
+    };
+
+    if (trackingStatus) {
+      startTracking();
+    } else {
+      if (subscriber) {
+        subscriber.remove();
+      }
+      subscriber = null;
+    }
+
+    return () => {
+      if (subscriber) {
+        subscriber.remove();
+      }
+    };
+  }, [trackingStatus]);
+
+  const startRecord = () => {
+    // setShouldTrack(true);
+    changeTrackingStatus(true);
+  };
+
+  const stopRecord = () => {
+    changeTrackingStatus(false);
+    // setShouldTrack(false);
+  };
+
+  const trackAction = async (location) => {
+    const { latitude, longitude } = location.coords;
+    const streetName = await Location.reverseGeocodeAsync({
+      latitude,
+      longitude,
+    });
+    location.streetName = streetName[0].street;
+    changeCurrentJourneyPointList(location);
+  };
 
   // searchStreet(address);
   useEffect(() => {
@@ -99,7 +162,6 @@ function JourneyTrack({
   const setCurrentRegion = () => {
     if (pointList.length > 1) {
       const { coords } = pointList[pointList.length - 1];
-
       setRegion({
         latitude: coords.latitude,
         longitude: coords.longitude,
@@ -119,63 +181,66 @@ function JourneyTrack({
     }
   };
 
-  TaskManager.defineTask("TRACK", async ({ data: { locations }, error }) => {
-    if (error) {
-      console.log("error----", error.message);
-      return;
-    }
-    if (new Date().getSeconds() % 2 == 0) {
-      // console.log("Received new locations", locations);
-      const { latitude, longitude } = locations[0].coords;
-      const streetName = await Location.reverseGeocodeAsync({
-        latitude,
-        longitude,
-      });
-      console.log(streetName[0].street);
-      locations[0].streetName = streetName[0].street;
-      // console.log("======", locations[0]);
+  // // tracking forcground  va background
+  // TaskManager.defineTask("TRACK", async ({ data: { locations }, error }) => {
+  //   if (error) {
+  //     console.log("error----", error.message);
+  //     return;
+  //   }
+  //   if (new Date().getSeconds() % 2 == 0) {
+  //     // console.log("Received new locations", locations);
+  //     const { latitude, longitude } = locations[0].coords;
+  //     const streetName = await Location.reverseGeocodeAsync({
+  //       latitude,
+  //       longitude,
+  //     });
+  //     console.log(streetName[0].street);
+  //     locations[0].streetName = streetName[0].street;
+  //     // console.log("======", locations[0]);
 
-      //check change stree
-      let length = pointList.length;
-      if (
-        length > 1 &&
-        pointList[length - 2].streetName &&
-        pointList[length - 2].streetName != locations[0].streetName &&
-        Platform.OS === "android" &&
-        Constants.isDevice
-      ) {
-        await schedulePushNotification(streetName[0].street);
-        console.log(
-          ` Đổi đường !!!!!! cũ ${pointList[length - 2].streetName} mới ==== ${
-            locations[0].streetName
-          }  `
-        );
-      }
-      // if (new Date().getMinutes() % 2 == 0) {
-      //   await schedulePushNotification(streetName[0].street);
-      // }
-      changeCurrentJourneyPointList(locations[0]);
-    }
-  });
+  //     //check change stree
+  //     let length = pointList.length;
+  //     if (
+  //       length > 1 &&
+  //       pointList[length - 2].streetName &&
+  //       pointList[length - 2].streetName != locations[0].streetName &&
+  //       Platform.OS === "android" &&
+  //       Constants.isDevice
+  //     ) {
+  //       await schedulePushNotification(streetName[0].street);
+  //       console.log(
+  //         ` Đổi đường !!!!!! cũ ${pointList[length - 2].streetName} mới ==== ${
+  //           locations[0].streetName
+  //         }  `
+  //       );
+  //     }
+  //     // if (new Date().getMinutes() % 2 == 0) {
+  //     //   await schedulePushNotification(streetName[0].street);
+  //     // }
+  //     changeCurrentJourneyPointList(locations[0]);
+  //   }
+  // });
 
-  const startRecord = () => {
-    if (!trackingStatus) {
-      //if false it mean its not tracking
-      Location.startLocationUpdatesAsync("TRACK", {
-        distanceInterval: DISTANCE_INTERVAL,
-      });
-      changeTrackingStatus(true);
-    }
-  };
+  // const startRecord = () => {
+  //   if (!trackingStatus) {
+  //     //if false it mean its not tracking
+  //     Location.startLocationUpdatesAsync("TRACK", {
+  //       distanceInterval: DISTANCE_INTERVAL,
+  //     });
+  //     changeTrackingStatus(true);
+  //   }
+  // };
 
-  const stopRecord = () => {
-    // if (trackingStatus) {
-      //if true it mean its tracking. t
-      Location.stopLocationUpdatesAsync("TRACK");
-      changeTrackingStatus(false);
-      // changeCurrentJourneyPointList(coord2);
-    // }
-  };
+  // const stopRecord = () => {
+  //   // if (trackingStatus) {
+  //   //if true it mean its tracking. t
+  //   Location.stopLocationUpdatesAsync("TRACK");
+  //   changeTrackingStatus(false);
+  //   // changeCurrentJourneyPointList(coord2);
+  //   // }
+  // };
+
+  //=========================================
 
   const deleteJourney = () => {
     stopRecord();
@@ -230,6 +295,10 @@ function JourneyTrack({
     navigation.navigate(CAMERA_SCREEN, { currentPosition });
   };
 
+  if(!loaded){
+    return   <ActivityIndicator size={"large"} color={color.aqua} />
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.headerBox}>
@@ -282,6 +351,7 @@ function JourneyTrack({
       </View>
 
       <View style={styles.buttonBox}>
+        {/* <ButtonBox title={"bậttb"} onPress={ notify} /> */}
         <ButtonBox title={"bật"} onPress={startRecord} />
         <ButtonBox title={"tắt"} onPress={stopRecord} />
         <ButtonIcon
@@ -307,7 +377,7 @@ function JourneyTrack({
       <View style={{ height: "100%", position: "relative" }}>
         <MapView style={{ flex: 1 }} region={region}>
           {pointList.map((point) => {
-            if (pointList.indexOf(point) > 0) {
+            if (pointList.indexOf(point) >= 0) {
               return (
                 <MapView.Marker
                   coordinate={{
@@ -315,7 +385,7 @@ function JourneyTrack({
                     longitude: point.coords.longitude,
                   }}
                   image={
-                    pointList.indexOf(point) == 1
+                    pointList.indexOf(point) == 0
                       ? pointIcon.start
                       : pointList.indexOf(point) == pointList.length - 1
                       ? pointIcon.current
@@ -329,6 +399,7 @@ function JourneyTrack({
       </View>
     </View>
   );
+  
 }
 
 const mapStateToProps = (state) => {
@@ -454,15 +525,15 @@ async function registerForPushNotificationsAsync() {
     // alert("Must use physical device for Push Notifications");
   }
 
-  if (Platform.OS === "android") {
-    // Notifications.setNotificationChannelAsync("default", {
-    //   name: "default",
-    //   importance: Notifications.AndroidImportance.MAX,
-    //   vibrationPattern: [0, 250, 250, 250],
-    //   lightColor: "#FF231F7C",
-    // });
-    alert("This function isnt avaliabel in android 11 and 10 .");
-  }
+  // if (Platform.OS === "android") {
+  // Notifications.setNotificationChannelAsync("default", {
+  //   name: "default",
+  //   importance: Notifications.AndroidImportance.MAX,
+  //   vibrationPattern: [0, 250, 250, 250],
+  //   lightColor: "#FF231F7C",
+  // });
+  // alert("This function isnt avaliabel in android 11 and 10 .");
+  // }
 
   return token;
 }

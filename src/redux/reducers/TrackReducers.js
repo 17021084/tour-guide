@@ -66,6 +66,12 @@ export default (state = initializeState, action) => {
           pointList: [...state.currentJourney.pointList, action.payload],
         },
       };
+    case TRACKING_STATUS_CHANGE:
+      return {
+        ...state,
+        trackingStatus: action.payload
+      }
+
     default:
       return state;
   }
