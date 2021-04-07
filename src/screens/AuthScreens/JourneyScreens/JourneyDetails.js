@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   View,
   Text,
@@ -7,7 +7,11 @@ import {
   Dimensions,
   Animated,
 } from "react-native";
-import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
+import {
+  FlatList,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native-gesture-handler";
 import MapView, { Marker } from "react-native-maps";
 import { connect } from "react-redux";
 import { useState, useRef } from "react/cjs/react.development";
@@ -15,18 +19,27 @@ import ButtonIcon from "../../../components/common/ButtonIcon.js";
 import { color, pointIcon } from "../../../config/appConfig.js";
 import { PERSON_DETAIL_SCREEN } from "../../ScreenName.js";
 import moment from "moment";
+import MarkerTrack from '../../../components/MarkerTrack'
 
 const width = Dimensions.get("window").width;
+
+const getStreetNameSet = (pointList) => {
+  let streetNameSet = [];
+  streetNameSet = pointList.map((point) => point.streetName);
+  return Array.from(new Set(streetNameSet));
+};
 
 function JourneyDetails({ navigation, route }) {
   const { journey } = route.params;
   const { data } = journey;
   const pointList = data.pointList;
-  const listPost = data.pointList.filter((post) => {
+  const listPost =pointList.filter((post) => {
     if (post.downloadURL) {
       return post;
     }
   });
+  const streetNameSet = getStreetNameSet(pointList);
+  const [hightLight, setHightLight] = useState("");
 
   const flatListRef = useRef();
 
@@ -43,18 +56,18 @@ function JourneyDetails({ navigation, route }) {
   });
 
   const [growUp, setGrowUp] = useState(false);
-  const growAni = useRef(new Animated.Value(100)).current;
+  const growAni = useRef(new Animated.Value(0)).current;
 
   const setGrow = () => {
     if (growUp) {
       Animated.timing(growAni, {
-        toValue: 500,
+        toValue: 400,
         duration: 1000,
       }).start();
       setGrowUp(!growUp);
     } else {
       Animated.timing(growAni, {
-        toValue: 100,
+        toValue: 0,
         duration: 1000,
       }).start();
       setGrowUp(!growUp);
@@ -77,43 +90,89 @@ function JourneyDetails({ navigation, route }) {
       longitudeDelta: 0.008,
     });
   };
+
+  const renderStreetName = ({ item }) => (
+    <TouchableOpacity
+      onPress={() => streetOnpress(item)}
+      style={
+        item === hightLight
+          ? [styles.streetItem, { backgroundColor: color.green }]
+          : styles.streetItem
+      }
+    >
+      <Text style={styles.streetNameText}> {item} </Text>
+    </TouchableOpacity>
+  );
+
+  console.log(streetNameSet);
+  console.log(pointList[0].coords);
+
+  const streetOnpress = (streetName) => {
+    setHightLight(streetName);
+    for(let i =0 ; i< pointList.length ; ++i){
+      if(pointList[i].streetName == streetName){
+        setRegion({
+          latitude: pointList[i].coords.latitude,
+          longitude: pointList[i].coords.longitude,
+          latitudeDelta: 0.008,
+          longitudeDelta: 0.008,
+        })
+        break;
+      }
+    }
+    console.log(streetName);
+  };
+
   return (
     <View style={styles.container}>
       <MapView region={region} style={styles.mapView}>
-        {pointList.map((point) => {
-          if (data.pointList.indexOf(point) > 0) {
+        {pointList.map((point,index) => {
+          console.log(index)
+          if (index >= 0) {
             return (
-              <TouchableOpacity>
-                <MapView.Marker
-                  coordinate={{
-                    latitude: point.coords.latitude,
-                    longitude: point.coords.longitude,
-                  }}
-                  image={
-                    pointList.indexOf(point) == 1
-                      ? pointIcon.start
-                      : pointList.indexOf(point) == pointList.length - 1
-                      ? pointIcon.current
-                      : pointIcon.point
-                  }
+                <MarkerTrack
+                  point={point}
+                  indexOfPoint={index}
+                  journeyLength={pointList.length}
+                  hightlightName={hightLight}
                 />
-              </TouchableOpacity>
-            );
+              );
           }
         })}
       </MapView>
 
       <View style={styles.personDetail}>
         <View style={styles.streetName}>
-          <Text style={styles.streetNameText}>
+          <Text style={styles.title}>
             Hành trình: {journey.data.journeyName}
           </Text>
-          <Text style={styles.streetNameText}>Địa chỉ: Nguyễn Chí Thanh</Text>
+          <Text style={styles.title}>
+            Bắt đầu: {pointList[0].streetName} -{" "}
+            {moment(pointList[0].timestamp).format("hh:mm DD/MM")}{" "}
+          </Text>
+          <Text style={styles.title}>
+            Kết thúc: {pointList[pointList.length - 1].streetName} -{" "}
+            {moment(pointList[pointList.length - 1].timestamp).format(
+              "hh:mm DD/MM"
+            )}
+          </Text>
           <Text style={styles.streetNameText}>
-            Thời điểm:{moment(Date.now()).format("llll")}
+            {/* Thời điểm:{moment(Date.now()).format("llll")} */}
           </Text>
         </View>
-        <View>
+      </View>
+      <View style={styles.streetNameCarousel}>
+        <FlatList
+          style={{ width: "100%" }}
+          horizontal={true}
+          data={streetNameSet}
+          keyExtractor={(item) => streetNameSet.indexOf("item")}
+          renderItem={renderStreetName}
+        />
+      </View>
+
+      <View style={styles.ScrollView}>
+        <View style={styles.buttonBox}>
           <ButtonIcon
             // style={}
             name={"location-history"}
@@ -129,23 +188,38 @@ function JourneyDetails({ navigation, route }) {
             size={50}
             color={color.aqua}
           />
+          {growUp ? (
+            <ButtonIcon
+              onPress={setGrow}
+              name="arrow-upward"
+              size={50}
+              color={color.aqua}
+            />
+          ) : (
+            <ButtonIcon
+              onPress={setGrow}
+              name="arrow-downward"
+              size={50}
+              color={color.aqua}
+            />
+          )}
         </View>
+
+        <Animated.FlatList
+          style={[
+            {
+              height: growAni,
+            },
+          ]}
+          horizontal={true}
+          ref={(ref) => {
+            flatListRef.current = ref;
+          }}
+          data={listPost}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+        ></Animated.FlatList>
       </View>
-      <Animated.FlatList
-        style={[
-          styles.ScrollView,
-          {
-            height: growAni,
-          },
-        ]}
-        horizontal={true}
-        ref={(ref) => {
-          flatListRef.current = ref;
-        }}
-        data={listPost}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-      ></Animated.FlatList>
     </View>
   );
 }
@@ -198,15 +272,40 @@ const styles = StyleSheet.create({
   },
   streetName: {
     flex: 1,
-    height: 100,
+    height: 125,
     backgroundColor: "white",
     borderRadius: 30,
-    padding: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     // justifyContent: "center",
     // alignItems: "center",
   },
+  buttonBox: {
+    width: "100%",
+    flex: 1,
+    display: "flex",
+    flexDirection: "row",
+  },
   streetNameText: {
     fontFamily: "open-sans-bold",
+    fontSize: 17,
+  },
+  streetNameCarousel: {
+    position: "absolute",
+    top: 150,
+    width: "100%",
+    flex: 1,
+    alignItems: "center",
+  },
+  streetItem: {
+    backgroundColor: "white",
+    marginHorizontal: 10,
+    paddingVertical: 3,
+    paddingHorizontal: 10,
+    borderRadius: 30,
+    height: 50,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 

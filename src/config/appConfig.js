@@ -18,6 +18,7 @@ export const color = {
 export const pointIcon ={
   point: require('../../assets/mapicons/point.png'),
   current: require('../../assets/mapicons/current.png'),
+  hightlight:  require('../../assets/mapicons/hightlight.png'),
   start: require('../../assets/mapicons/start.png'),
   end: require('../../assets/mapicons/end.png'),
 }
