@@ -6,6 +6,7 @@ import {
   TRACKING_STATUS_CHANGE,
   UPDATE_JOURNEY_LIST,
   ADD_CURRENT_TO_JOURNEY_LIST,
+  TRACKING_SETTING_CHANGE,
   JOURNEY_LIST_FETCHED,
 } from "./type";
 
@@ -28,7 +29,7 @@ export const fetchJourneyList = () => {
           snapshot.forEach((doc) => {
             newJouneyList.push({
               data: doc.data(),
-              id: doc.id 
+              id: doc.id,
             });
           });
         }
@@ -85,5 +86,12 @@ export const saveCurrentJourney = () => {
     // };
     // dispatch(updateJourneyList(currentJourney));
     dispatch(journeyReset());
+  };
+};
+
+export const changeTrackingSetting = (setting) => {
+  return {
+    type: TRACKING_SETTING_CHANGE,
+    payload: setting,
   };
 };

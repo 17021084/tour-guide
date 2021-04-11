@@ -21,7 +21,7 @@ export default function BookmarkCard({ person }) {
           <Text style={styles.personName}> {person.label} </Text>
           <Text style={styles.shortDescription}>
             {person.termDescription ||
-              "Hiện tại Chưa có thông tin chi tiết"}
+              ""}
           </Text>
         </View>
       </View>

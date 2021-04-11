@@ -6,6 +6,7 @@ import {
   JOURNEY_RESET,
   UPDATE_JOURNEY_LIST,
   JOURNEY_LIST_FETCHED,
+  TRACKING_SETTING_CHANGE,
 } from "../actions/type";
 
 const initializeState = {
@@ -24,7 +25,10 @@ const initializeState = {
       // },
     ],
   },
-
+  trackingSetting: {
+    distanceInterval: 10, //meter
+    timeInterval: 2000, // ms ~ 2s
+  },
   trackingStatus: false, //going : true ,false. stop
   journeyList: [],
   journeyListFetched: false,
@@ -34,11 +38,17 @@ const initializeState = {
 
 export default (state = initializeState, action) => {
   switch (action.type) {
+    case TRACKING_SETTING_CHANGE:
+      return {
+        ...state,
+        trackingSetting: action.payload,
+      };
+
     case JOURNEY_LIST_FETCHED:
       return {
         ...state,
         journeyListFetched: true,
-        journeyList: action.payload
+        journeyList: action.payload,
       };
     case JOURNEY_RESET:
       return {
@@ -69,8 +79,8 @@ export default (state = initializeState, action) => {
     case TRACKING_STATUS_CHANGE:
       return {
         ...state,
-        trackingStatus: action.payload
-      }
+        trackingStatus: action.payload,
+      };
 
     default:
       return state;

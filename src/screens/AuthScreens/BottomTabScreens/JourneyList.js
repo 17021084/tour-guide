@@ -230,15 +230,10 @@ function JourneyList({
           <ActivityIndicator size={"large"} color={color.aqua} />
         ) : (
           <Button
-            title={"Lưu hành trình lên đám mây "}
+            title={"Lưu hành trình"}
             onPress={saveTripIntoFirebase}
           />
         )}
-        <Button
-          style={styles.button}
-          onPress={fetchJourneyList}
-          title="fet data"
-        />
       </View>
 
       {_renderModalSetName()}

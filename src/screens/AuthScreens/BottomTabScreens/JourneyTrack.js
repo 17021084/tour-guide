@@ -1,6 +1,14 @@
 import React, { useEffect, useState, useRef } from "react";
 import * as Location from "expo-location";
-import { View, Text, Button, StyleSheet, Alert, Modal ,ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  Button,
+  StyleSheet,
+  Alert,
+  Modal,
+  ActivityIndicator,
+} from "react-native";
 import { connect } from "react-redux";
 import { CAMERA_SCREEN, PERSON_DETAIL_SCREEN } from "../../ScreenName";
 import * as TaskManager from "expo-task-manager";
@@ -10,7 +18,9 @@ import {
   changeTrackingStatus,
   journeyReset,
   saveCurrentJourney,
-} from "../../../redux/actions/TrackAction";
+  changeTrackingSetting,
+  searchStreet,
+} from "../../../redux/actions";
 
 import InputBox from "../../../components/common/InputBox";
 import ButtonIcon from "../../../components/common/ButtonIcon";
@@ -20,7 +30,6 @@ import { updateRegion } from "../../../utils/updateRegion";
 import Constants from "expo-constants";
 import * as Notifications from "expo-notifications";
 import { color, pointIcon } from "../../../config/appConfig";
-import { searchStreet } from "../../../redux/actions";
 import filterStreetName from "../../../utils/filterStreetName";
 import ontologyAPI from "../../../api/ontologyApi";
 
@@ -39,17 +48,20 @@ function JourneyTrack({
   navigation,
   searchStreet,
   person,
+  trackingSetting,
   trackingStatus,
   pointList,
   journeyName,
   journeyReset,
+  changeTrackingSetting,
   saveCurrentJourney,
   changeTrackingStatus,
   changeCurrentJourneyName,
   changeCurrentJourneyPointList,
 }) {
   const [currentJourneyName, setCurrentJourneyName] = useState(journeyName);
-  const [loaded,setLoaded]= useState(false)
+  const [newSetting, setNewSetting] = useState(trackingSetting);
+  const [loaded, setLoaded] = useState(false);
   const [region, setRegion] = useState({});
 
   useEffect(async () => {
@@ -61,7 +73,7 @@ function JourneyTrack({
       longitudeDelta: 0.02,
       latitudeDelta: 0.02,
     });
-    setLoaded(true)
+    setLoaded(true);
   }, []);
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -80,8 +92,8 @@ function JourneyTrack({
         subscriber = await Location.watchPositionAsync(
           {
             accuracy: Location.Accuracy.BestForNavigation,
-            timeInterval: TRACKING_INTERVAL, //* 1s
-            distanceInterval: DISTANCE_INTERVAL, //* 10 meters
+            timeInterval: trackingSetting.timeInterval, //* 1s
+            distanceInterval: trackingSetting.distanceInterval, //* 10 meters
           },
           trackAction
         );
@@ -127,19 +139,19 @@ function JourneyTrack({
   };
 
   // searchStreet(address);
-  useEffect(() => {
-    registerForPushNotificationsAsync().then((token) =>
-      setExpoPushToken(token)
-    );
-    notificationListener.current = Notifications.addNotificationReceivedListener(
-      (notification) => {
-        setNotification(notification);
-      }
-    );
-    return () => {
-      Notifications.removeNotificationSubscription(notificationListener);
-    };
-  }, []);
+  // useEffect(() => {
+  //   registerForPushNotificationsAsync().then((token) =>
+  //     setExpoPushToken(token)
+  //   );
+  //   notificationListener.current = Notifications.addNotificationReceivedListener(
+  //     (notification) => {
+  //       setNotification(notification);
+  //     }
+  //   );
+  //   return () => {
+  //     Notifications.removeNotificationSubscription(notificationListener);
+  //   };
+  // }, []);
 
   useEffect(() => {
     if (pointList.length < 1) {
@@ -153,7 +165,6 @@ function JourneyTrack({
       //check lai ki
       let newRegion = updateRegion(pointList[pointList.length - 1], region);
       if (newRegion) {
-        // console.log("change region============");
         setRegion(newRegion);
       }
     }
@@ -247,8 +258,16 @@ function JourneyTrack({
     journeyReset();
   };
 
-  const setNameJourney = () => {
+  const onChangeSetting = () => {
     changeCurrentJourneyName(currentJourneyName);
+    let { timeInterval, distanceInterval } = newSetting;
+    // if (
+    //   typeof Number(timeInterval) == "number" &&
+    //   typeof Number(distanceInterval) == "number"
+    // ) {
+    // }
+    console.log(timeInterval, distanceInterval)
+    changeTrackingSetting(newSetting);
     setModalVisible(!modalVisible);
   };
 
@@ -270,12 +289,29 @@ function JourneyTrack({
               title={"Tên Hành Trình"}
               placeholder={journeyName || "Hãy nhập tên hành trình mới"}
             />
+            <InputBox
+              onChangeText={(time) =>
+                setNewSetting({ ...newSetting, timeInterval: time*1000 })
+              }
+              title={"Chu kỳ lấy toạ độ (s)"}
+              placeholder={newSetting.timeInterval.toString() || "mặc định 2s "}
+            />
+            <InputBox
+              onChangeText={(distance) =>
+                setNewSetting({
+                  ...newSetting,
+                  distanceInterval: distance,
+                })
+              }
+              title={"Khoảng cách lấy toạ độ (m)"}
+              placeholder={newSetting.distanceInterval.toString() || "Mặc định 10 mét "}
+            />
           </View>
 
           <View style={styles.modalButtonBox}>
             <Button
               style={[styles.button, styles.buttonClose]}
-              onPress={setNameJourney}
+              onPress={onChangeSetting}
               title="Lưu"
             />
             <Button
@@ -295,8 +331,8 @@ function JourneyTrack({
     navigation.navigate(CAMERA_SCREEN, { currentPosition });
   };
 
-  if(!loaded){
-    return   <ActivityIndicator size={"large"} color={color.aqua} />
+  if (!loaded) {
+    return <ActivityIndicator size={"large"} color={color.aqua} />;
   }
 
   return (
@@ -399,11 +435,11 @@ function JourneyTrack({
       </View>
     </View>
   );
-  
 }
 
 const mapStateToProps = (state) => {
   return {
+    trackingSetting: state.trackState.trackingSetting,
     trackingStatus: state.trackState.trackingStatus,
     pointList: state.trackState.currentJourney.pointList,
     journeyName: state.trackState.currentJourney.journeyName,
@@ -417,6 +453,7 @@ export default connect(mapStateToProps, {
   changeCurrentJourneyName,
   changeCurrentJourneyPointList,
   saveCurrentJourney,
+  changeTrackingSetting,
 })(JourneyTrack);
 const styles = StyleSheet.create({
   container: {
@@ -427,7 +464,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   inputName: {
-    height: 100,
+    height: 300,
   },
   centeredView: {
     flex: 1,
@@ -490,6 +527,9 @@ const styles = StyleSheet.create({
   mapView: {
     flex: 1,
     height: 300,
+  },
+  inputModal: {
+    marginTop: 10,
   },
 });
 
