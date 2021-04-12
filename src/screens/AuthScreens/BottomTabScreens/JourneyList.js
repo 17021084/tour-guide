@@ -7,11 +7,13 @@ import {
   StyleSheet,
   Modal,
   Dimensions,
+  Alert,
   ActivityIndicator,
 } from "react-native";
 import { FlatList, ScrollView } from "react-native-gesture-handler";
 import { connect } from "react-redux";
 import { useState } from "react/cjs/react.development";
+import { useEffect } from "react/cjs/react.production.min";
 import ButtonBox from "../../../components/common/ButtonBox";
 import ButtonIcon from "../../../components/common/ButtonIcon";
 import InputBox from "../../../components/common/InputBox";
@@ -20,7 +22,8 @@ import {
   changeCurrentJourneyName,
   fetchJourneyList,
   saveCurrentJourney,
-} from "../../../redux/actions/TrackAction";
+  deleteJourney,
+} from "../../../redux/actions";
 import { JOURNEY_DETAIL_SCREEN } from "../../ScreenName";
 
 function JourneyList({
@@ -32,10 +35,12 @@ function JourneyList({
   changeCurrentJourneyName,
   fetchJourneyList,
   journeyList,
+  deleteJourney,
 }) {
   const [currentJourneyName, setCurrentJourneyName] = useState(journeyName);
   const [isSaving, setIsSaving] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+
   //Handle waiting to upload each file using promise
   const uploadImageAsPromise = (point, name, index) => {
     return new Promise(async function (resolve, reject) {
@@ -108,8 +113,8 @@ function JourneyList({
             })
             .then((res) => {
               console.log("Upload success");
+              saveCurrentJourney(res.id);
               setIsSaving(false);
-              saveCurrentJourney();
             })
             .catch((error) => {
               setIsSaving(false);
@@ -163,6 +168,17 @@ function JourneyList({
     </Modal>
   );
 
+  const createTwoButtonAlert = (item) => {
+    Alert.alert("Xoá hành trình", "Bạn thức sự muốn xoá ", [
+      {
+        text: "Cancel",
+        onPress: () => console.log("Cancel Pressed"),
+        style: "cancel",
+      },
+      { text: "OK", onPress: ()=> deleteJourney(item) },
+    ]);
+  };
+
   const renderItem = ({ item }) => (
     <View style={styles.journeyBox}>
       <View style={styles.contentBox}>
@@ -172,19 +188,29 @@ function JourneyList({
         </View>
         <View style={styles.inforBox}>
           <Text style={styles.title}>Điểm bắt đầu : </Text>
-          <Text style={styles.titleValue}>{item.data.pointList[0].streetName}</Text>
+          <Text style={styles.titleValue}>
+            {item.data.pointList[0].streetName}
+          </Text>
         </View>
         <View style={styles.inforBox}>
           <Text style={styles.title}>Điểm kết thúc : </Text>
-          <Text style={styles.titleValue}>{item.data.pointList[item.data.pointList.length-1].streetName}</Text>
+          <Text style={styles.titleValue}>
+            {item.data.pointList[item.data.pointList.length - 1].streetName}
+          </Text>
         </View>
       </View>
       <View style={styles.buttonDetail}>
         <ButtonBox
           title={"Chi tiết"}
           onPress={() => {
-            navigation.navigate(JOURNEY_DETAIL_SCREEN ,{journey : item});
+            navigation.navigate(JOURNEY_DETAIL_SCREEN, { journey: item });
           }}
+        />
+        <ButtonIcon
+          name={"restore-from-trash"}
+          size={30}
+          color={color.orange}
+          onPress={() => createTwoButtonAlert(item)}
         />
       </View>
     </View>
@@ -229,18 +255,16 @@ function JourneyList({
         {isSaving ? (
           <ActivityIndicator size={"large"} color={color.aqua} />
         ) : (
-          <Button
-            title={"Lưu hành trình"}
-            onPress={saveTripIntoFirebase}
-          />
+          <Button title={"Lưu hành trình"} onPress={saveTripIntoFirebase} />
         )}
       </View>
 
       {_renderModalSetName()}
       <View style={styles.mainContainer}>
-        <FlatList data={journeyList} 
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
+        <FlatList
+          data={journeyList}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
         />
       </View>
     </View>
@@ -259,6 +283,7 @@ export default connect(mapStateToProps, {
   saveCurrentJourney,
   changeCurrentJourneyName,
   fetchJourneyList,
+  deleteJourney,
 })(JourneyList);
 
 const styles = StyleSheet.create({

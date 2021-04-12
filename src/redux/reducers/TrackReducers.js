@@ -7,6 +7,7 @@ import {
   UPDATE_JOURNEY_LIST,
   JOURNEY_LIST_FETCHED,
   TRACKING_SETTING_CHANGE,
+  DELETE_JOURNEY,
 } from "../actions/type";
 
 const initializeState = {
@@ -81,7 +82,14 @@ export default (state = initializeState, action) => {
         ...state,
         trackingStatus: action.payload,
       };
-
+    case DELETE_JOURNEY:
+      let newJourneyList = state.journeyList.filter(
+        (journey) => journey.id !== action.payload
+      );
+      return {
+        ...state,
+        newJourneyList,
+      };
     default:
       return state;
   }

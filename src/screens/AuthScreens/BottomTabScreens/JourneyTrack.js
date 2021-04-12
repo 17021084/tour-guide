@@ -63,17 +63,20 @@ function JourneyTrack({
   const [newSetting, setNewSetting] = useState(trackingSetting);
   const [loaded, setLoaded] = useState(false);
   const [region, setRegion] = useState({});
-
-  useEffect(async () => {
-    let location = await Location.getCurrentPositionAsync({});
-    let { latitude, longitude } = location.coords;
-    setRegion({
-      latitude,
-      longitude,
-      longitudeDelta: 0.02,
-      latitudeDelta: 0.02,
-    });
-    setLoaded(true);
+ 
+  useEffect( () => {
+    const getCurrentPoistion = async () => {
+      let location = await Location.getCurrentPositionAsync({});
+      let { latitude, longitude } = location.coords;
+      setRegion({
+        latitude,
+        longitude,
+        longitudeDelta: 0.02,
+        latitudeDelta: 0.02,
+      });
+      setLoaded(true);
+    };
+    getCurrentPoistion();
   }, []);
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -261,13 +264,13 @@ function JourneyTrack({
   const onChangeSetting = () => {
     changeCurrentJourneyName(currentJourneyName);
     let { timeInterval, distanceInterval } = newSetting;
-    // if (
-    //   typeof Number(timeInterval) == "number" &&
-    //   typeof Number(distanceInterval) == "number"
-    // ) {
-    // }
-    console.log(timeInterval, distanceInterval)
-    changeTrackingSetting(newSetting);
+    if (
+      typeof Number(timeInterval) == "number" &&
+      typeof Number(distanceInterval) == "number"
+    ) {
+      changeTrackingSetting(newSetting);
+    }
+
     setModalVisible(!modalVisible);
   };
 
@@ -291,7 +294,7 @@ function JourneyTrack({
             />
             <InputBox
               onChangeText={(time) =>
-                setNewSetting({ ...newSetting, timeInterval: time*1000 })
+                setNewSetting({ ...newSetting, timeInterval: time * 1000 })
               }
               title={"Chu kỳ lấy toạ độ (s)"}
               placeholder={newSetting.timeInterval.toString() || "mặc định 2s "}
@@ -304,7 +307,9 @@ function JourneyTrack({
                 })
               }
               title={"Khoảng cách lấy toạ độ (m)"}
-              placeholder={newSetting.distanceInterval.toString() || "Mặc định 10 mét "}
+              placeholder={
+                newSetting.distanceInterval.toString() || "Mặc định 10 mét "
+              }
             />
           </View>
 
@@ -534,46 +539,46 @@ const styles = StyleSheet.create({
 });
 
 // notification services
-async function schedulePushNotification(streetName) {
-  await Notifications.scheduleNotificationAsync({
-    content: {
-      title: "tracking app 📬",
-      body: streetName,
-    },
-    trigger: { seconds: 1 },
-  });
-}
+// async function schedulePushNotification(streetName) {
+//   await Notifications.scheduleNotificationAsync({
+//     content: {
+//       title: "tracking app 📬",
+//       body: streetName,
+//     },
+//     trigger: { seconds: 1 },
+//   });
+// }
 
-async function registerForPushNotificationsAsync() {
-  let token;
-  if (Constants.isDevice) {
-    const {
-      status: existingStatus,
-    } = await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-    if (existingStatus !== "granted") {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-    if (finalStatus !== "granted") {
-      alert("Failed to get push token for push notification!");
-      return;
-    }
-    token = (await Notifications.getExpoPushTokenAsync()).data;
-    console.log(token);
-  } else {
-    // alert("Must use physical device for Push Notifications");
-  }
+// async function registerForPushNotificationsAsync() {
+//   let token;
+//   if (Constants.isDevice) {
+//     const {
+//       status: existingStatus,
+//     } = await Notifications.getPermissionsAsync();
+//     let finalStatus = existingStatus;
+//     if (existingStatus !== "granted") {
+//       const { status } = await Notifications.requestPermissionsAsync();
+//       finalStatus = status;
+//     }
+//     if (finalStatus !== "granted") {
+//       alert("Failed to get push token for push notification!");
+//       return;
+//     }
+//     token = (await Notifications.getExpoPushTokenAsync()).data;
+//     console.log(token);
+//   } else {
+//     // alert("Must use physical device for Push Notifications");
+//   }
 
-  // if (Platform.OS === "android") {
-  // Notifications.setNotificationChannelAsync("default", {
-  //   name: "default",
-  //   importance: Notifications.AndroidImportance.MAX,
-  //   vibrationPattern: [0, 250, 250, 250],
-  //   lightColor: "#FF231F7C",
-  // });
-  // alert("This function isnt avaliabel in android 11 and 10 .");
-  // }
+//   // if (Platform.OS === "android") {
+//   // Notifications.setNotificationChannelAsync("default", {
+//   //   name: "default",
+//   //   importance: Notifications.AndroidImportance.MAX,
+//   //   vibrationPattern: [0, 250, 250, 250],
+//   //   lightColor: "#FF231F7C",
+//   // });
+//   // alert("This function isnt avaliabel in android 11 and 10 .");
+//   // }
 
-  return token;
-}
+//   return token;
+// }

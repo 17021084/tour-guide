@@ -8,6 +8,7 @@ import {
   ADD_CURRENT_TO_JOURNEY_LIST,
   TRACKING_SETTING_CHANGE,
   JOURNEY_LIST_FETCHED,
+  DELETE_JOURNEY,
 } from "./type";
 
 export const journeyReset = () => {
@@ -77,14 +78,13 @@ const updateJourneyList = (journey) => {
   };
 };
 
-export const saveCurrentJourney = () => {
+export const saveCurrentJourney = (id) => {
   return (dispatch, getState) => {
-    // console.log('journer list o action ===== ',getState().trackState.journeyList.length )
-    // const currentJourney = {
-    //   data : getState().trackState.currentJourney,
-    //   id : Date.now().toString()
+    // const newJourneyList = {
+    //   data: getState().trackState.currentJourney,
+    //   id: id,
     // };
-    // dispatch(updateJourneyList(currentJourney));
+    // dispatch(updateJourneyList(newJourneyList));
     dispatch(journeyReset());
   };
 };
@@ -95,3 +95,45 @@ export const changeTrackingSetting = (setting) => {
     payload: setting,
   };
 };
+
+export const deleteJourney = (journey) => {
+  return (dispatch) => {
+    const userId = firebase.auth().currentUser.uid;
+    firebase.firestore()
+      .collection("journeys")
+      .doc(userId)
+      .collection("userJourneys")
+      .doc(journey.id)
+      .delete()
+      .then(() => {
+        console.log("delete document success");
+        dispatch({
+          payload: journey.id,
+          type: DELETE_JOURNEY,
+        });
+        let path = `journeys/${userId.toString()}/${journey.data.journeyName}` ;
+        deleteFolderContents(path);
+
+      });
+  };
+};
+
+//firebase doesnt support delete folder directly
+function deleteFolderContents(path) {
+  const ref = firebase.storage().ref(path);
+  ref.listAll()
+    .then(dir => {
+      dir.items.forEach(fileRef => {
+        deleteFile(ref.fullPath, fileRef.name);
+      });
+    })
+    .catch(error => {
+      console.log(error);
+    });
+}
+
+function deleteFile(pathToFile, fileName) {
+  const ref = firebase.storage().ref(pathToFile);
+  const childRef = ref.child(fileName);
+  childRef.delete()
+}
