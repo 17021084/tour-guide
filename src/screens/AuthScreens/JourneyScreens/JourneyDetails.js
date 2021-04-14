@@ -19,7 +19,8 @@ import ButtonIcon from "../../../components/common/ButtonIcon.js";
 import { color, pointIcon } from "../../../config/appConfig.js";
 import { PERSON_DETAIL_SCREEN } from "../../ScreenName.js";
 import moment from "moment";
-import MarkerTrack from '../../../components/MarkerTrack'
+import MarkerTrack from "../../../components/MarkerTrack";
+import filterStreetName from "../../../utils/filterStreetName";
 
 const width = Dimensions.get("window").width;
 
@@ -33,7 +34,7 @@ function JourneyDetails({ navigation, route }) {
   const { journey } = route.params;
   const { data } = journey;
   const pointList = data.pointList;
-  const listPost =pointList.filter((post) => {
+  const listPost = pointList.filter((post) => {
     if (post.downloadURL) {
       return post;
     }
@@ -54,7 +55,6 @@ function JourneyDetails({ navigation, route }) {
     latitudeDelta: 0.008,
     longitudeDelta: 0.008,
   });
-
   const [growUp, setGrowUp] = useState(false);
   const growAni = useRef(new Animated.Value(0)).current;
 
@@ -73,19 +73,33 @@ function JourneyDetails({ navigation, route }) {
       setGrowUp(!growUp);
     }
   };
-
   const renderItem = ({ item }) => (
     <View style={styles.pointCard}>
-      <TouchableOpacity onPress={setGrow}>
+      <TouchableOpacity
+        onPress={() => {
+          setCurrentRegionOfImage(item);
+        }}
+      >
         <Image style={styles.imagePoint} source={{ uri: item.downloadURL }} />
         <Text style={styles.postPoint}>{item.caption}</Text>
       </TouchableOpacity>
     </View>
   );
+
+  const setCurrentRegionOfImage = (item) => {
+    setRegion({
+      latitude: item.coords.latitude,
+      longitude: item.coords.longitude,
+      latitudeDelta: 0.008,
+      longitudeDelta: 0.008,
+    });
+    setHightLight(item.streetName)
+  };
+
   const setCurrentRegion = () => {
     setRegion({
-      latitude: 21.0281465,
-      longitude: 105.7882117,
+      latitude: pointList[0].coords.latitude,
+      longitude: pointList[0].coords.longitude,
       latitudeDelta: 0.008,
       longitudeDelta: 0.008,
     });
@@ -104,39 +118,41 @@ function JourneyDetails({ navigation, route }) {
     </TouchableOpacity>
   );
 
-  console.log(streetNameSet);
-  console.log(pointList[0].coords);
-
   const streetOnpress = (streetName) => {
     setHightLight(streetName);
-    for(let i =0 ; i< pointList.length ; ++i){
-      if(pointList[i].streetName == streetName){
+    for (let i = 0; i < pointList.length; ++i) {
+      if (pointList[i].streetName == streetName) {
         setRegion({
           latitude: pointList[i].coords.latitude,
           longitude: pointList[i].coords.longitude,
           latitudeDelta: 0.008,
           longitudeDelta: 0.008,
-        })
+        });
         break;
       }
     }
-    console.log(streetName);
+  };
+
+  const getPersonInfor = () => {
+    if (hightLight) {
+      const streetname = filterStreetName(hightLight);
+      navigation.navigate(PERSON_DETAIL_SCREEN, { personName: streetname });
+    }
   };
 
   return (
     <View style={styles.container}>
       <MapView region={region} style={styles.mapView}>
-        {pointList.map((point,index) => {
-          console.log(index)
+        {pointList.map((point, index) => {
           if (index >= 0) {
             return (
-                <MarkerTrack
-                  point={point}
-                  indexOfPoint={index}
-                  journeyLength={pointList.length}
-                  hightlightName={hightLight}
-                />
-              );
+              <MarkerTrack
+                point={point}
+                indexOfPoint={index}
+                journeyLength={pointList.length}
+                hightlightName={hightLight}
+              />
+            );
           }
         })}
       </MapView>
@@ -177,10 +193,7 @@ function JourneyDetails({ navigation, route }) {
             // style={}
             name={"location-history"}
             color={color.aqua}
-            onPress={() => {
-              // navigation.navigate(PERSON_DETAIL_SCREEN);
-              flatListRef.current.scrollToIndex({ animated: true, index: 2 });
-            }}
+            onPress={getPersonInfor}
           />
           <ButtonIcon
             onPress={setCurrentRegion}
@@ -204,21 +217,23 @@ function JourneyDetails({ navigation, route }) {
             />
           )}
         </View>
-
-        <Animated.FlatList
+        <Animated.View
           style={[
             {
               height: growAni,
             },
           ]}
-          horizontal={true}
-          ref={(ref) => {
-            flatListRef.current = ref;
-          }}
-          data={listPost}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-        ></Animated.FlatList>
+        >
+          <FlatList
+            horizontal={true}
+            ref={(ref) => {
+              flatListRef.current = ref;
+            }}
+            data={listPost}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+          />
+        </Animated.View>
       </View>
     </View>
   );

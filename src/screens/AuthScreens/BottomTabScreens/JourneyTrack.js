@@ -185,13 +185,12 @@ function JourneyTrack({
     }
   };
 
-  const getPersonInfor = async () => {
+  const getPersonInfor = () => {
     if (pointList.length) {
       const streetname = filterStreetName(
         pointList[pointList.length - 1].streetName
       );
-      const person = await ontologyAPI(streetname);
-      navigation.navigate(PERSON_DETAIL_SCREEN, { person: person.data[0] });
+      navigation.navigate(PERSON_DETAIL_SCREEN, { personName:streetname });
     }
   };
 
@@ -374,7 +373,6 @@ function JourneyTrack({
           </Text>
           <ButtonIcon
             onPress={getPersonInfor}
-            // onPress={getAddress}
             name="location-history"
             size={35}
             color={color.aqua}

@@ -10,19 +10,27 @@ import { PERSON_DETAIL_SCREEN } from "../screens/ScreenName";
 import BookmarkCard from "./BookmarkCard";
 import { useNavigation } from "@react-navigation/native";
 
-export default function ListPerson({ listPerson }) {
+export default function ListPerson({ listPerson, hadPerson  }) {
   const navigation = useNavigation();
-  const renderBookmardCard = ({ item }) => (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={() => {
-        navigation.navigate(PERSON_DETAIL_SCREEN, { person: item });
-      }}
-      disabled={Object.keys(item.meta) == 0 ? true : false}
-    >
-      <BookmarkCard person={item} />
-    </TouchableOpacity>
-  );
+  const renderBookmardCard = ({ item }) => {
+    return (
+      <TouchableOpacity
+        style={styles.card}
+        onPress={() => {
+          hadPerson
+            ? navigation.navigate(PERSON_DETAIL_SCREEN, {
+                person: item,
+              })
+            : navigation.navigate(PERSON_DETAIL_SCREEN, {
+                personName: item.label,
+              });
+        }}
+        // disabled={Object.keys(item.meta) == 0 ? true : false}
+      >
+        <BookmarkCard person={item} />
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <FlatList
