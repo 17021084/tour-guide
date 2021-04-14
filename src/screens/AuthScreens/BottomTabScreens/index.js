@@ -18,11 +18,11 @@ export default function BottomTabScreens() {
     <BottomStack.Navigator initialRouteName={HOME_SCREEN}>
       <BottomStack.Screen name={BOOKMARK_SCREEN} component={Bookmark} />
       <BottomStack.Screen name={HOME_SCREEN} component={Home} />
-      <BottomStack.Screen
+      {/* <BottomStack.Screen
         name={JOURNEY_TRACK_SCREEN}
         component={JourneyTrack}
       />
-      <BottomStack.Screen name={JOURNEY_LIST_SCREEN} component={JourneyList} />
+      <BottomStack.Screen name={JOURNEY_LIST_SCREEN} component={JourneyList} /> */}
     </BottomStack.Navigator>
   );
 }
