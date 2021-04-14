@@ -9,7 +9,7 @@ import {
   Image,
 } from "react-native";
 import { SIGN_UP_SCREEN } from "../ScreenName";
-import logo from "../../../assets/icon.png";
+import logo from "../../../assets/logo.png";
 import ButtonBox from "../../components/common/ButtonBox";
 import InputBox from "../../components/common/InputBox";
 import { color } from "../../config/appConfig";

@@ -13,7 +13,7 @@ import {
 import firebase from "firebase";
 import "firebase/firestore";
 
-import logo from "../../../assets/icon.png";
+import logo from "../../../assets/logo.png";
 import ButtonBox from "../../components/common/ButtonBox";
 import InputBox from "../../components/common/InputBox";
 import { color } from "../../config/appConfig";

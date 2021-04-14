@@ -18,6 +18,8 @@
     ],
     "ios": {
       "supportsTablet": true,
+      "bundleIdentifier": "com.vnu.tour-guide-app",
+      "buildNumber": "1.0.0",
       "infoPlist": { 
         "UIBackgroundModes": ["location","fetch"],
         "NSLocationWhenInUseUsageDescription": "text", 
@@ -26,6 +28,8 @@
       }
     },
     "android": {
+      "package": "com.vnu.tour-guide-app",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
