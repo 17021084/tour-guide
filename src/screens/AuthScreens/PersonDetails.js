@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, Image, SafeAreaView } from "react-native";
+import { View, Text, StyleSheet, Image, ActivityIndicator } from "react-native";
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import { connect } from "react-redux";
 import { useEffect, useState } from "react/cjs/react.development";
@@ -10,7 +10,7 @@ import { color } from "../../config/appConfig";
 import * as firebase from "firebase";
 import { addBookmark, deleteBookmark } from "../../redux/actions/UserAction";
 import { CONCERN_SCREEN } from "../ScreenName";
-
+import ontologyAPI from "../../api/ontologyApi";
 function PersonDetails({
   route,
   deleteBookmark,
@@ -19,12 +19,36 @@ function PersonDetails({
   navigation,
 }) {
   const [isBooked, setIsBooked] = useState();
-  const { person } = route.params;
+  const [isLoaded, setLoaded] = useState(false);
+  const { person, personName } = route.params;
+  const [displayPerson, setDisplayPerson] = useState(null);
+
   useEffect(() => {
-    if (person) {
+    const getPerson = async () => {
+      if (personName) {
+        // fetch person by name
+        try {
+          const personAPI = await ontologyAPI(personName);
+          setDisplayPerson(personAPI.data[0]);
+        } catch (error) {
+          console.log("error when fetch person by name");
+          setDisplayPerson(null);
+        }
+      } else {
+        //already had this person, just display
+        setDisplayPerson(person);
+        setLoaded(true);
+      }
+    };
+    getPerson();
+  }, [personName]);
+
+  //check bookmark
+  useEffect(() => {
+    if (displayPerson) {
       let exsist = false;
       for (let i = 0; i < bookmarkList.length; ++i) {
-        if (bookmarkList[i].meta.pageID == person.meta.pageID) {
+        if (bookmarkList[i].meta.pageID == displayPerson.meta.pageID) {
           exsist = true;
           break;
         }
@@ -35,7 +59,7 @@ function PersonDetails({
         setIsBooked(false);
       }
     }
-  }, [bookmarkList, person]);
+  }, [bookmarkList, displayPerson]);
 
   const onBookmark = () => {
     firebase
@@ -43,10 +67,10 @@ function PersonDetails({
       .collection("bookmarks")
       .doc(firebase.auth().currentUser.uid)
       .collection("listBookmarks")
-      .doc(person.meta.pageID)
-      .set(person)
+      .doc(displayPerson.meta.pageID)
+      .set(displayPerson)
       .then(() => {
-        addBookmark(person);
+        addBookmark(displayPerson);
       });
   };
   const onUnBookmark = () => {
@@ -55,10 +79,10 @@ function PersonDetails({
       .collection("bookmarks")
       .doc(firebase.auth().currentUser.uid)
       .collection("listBookmarks")
-      .doc(person.meta.pageID)
+      .doc(displayPerson.meta.pageID)
       .delete()
       .then(() => {
-        deleteBookmark(person.meta.pageID);
+        deleteBookmark(displayPerson.meta.pageID);
       });
   };
 
@@ -78,7 +102,7 @@ function PersonDetails({
   };
 
   const renderInforBoxObject = () => {
-    let infoObj = person.infobox;
+    let infoObj = displayPerson.infobox;
     return (
       <View>
         {Object.entries(infoObj).map((key, value) => (
@@ -95,10 +119,27 @@ function PersonDetails({
     navigation.navigate(CONCERN_SCREEN, { typeName });
   };
 
-  if (person == null) {
-    return <Text> Ko có thông tin </Text>;
+  if (!isLoaded) {
+    return (
+      <View
+        style={{ flex: 1, justifyContent: "center", alignContent: "center" }}
+      >
+        <ActivityIndicator size="large" color={color.aqua} />
+      </View>
+    );
   }
-  if (person) {
+  if (displayPerson == null) {
+    return (
+      <View
+      style={{ flex: 1, justifyContent: "center", alignContent: "center" }}
+    >
+      <Text style={{alignSelf:'center'}}>
+        Không có thông tin hiển thị
+      </Text>
+    </View>
+    );
+  }
+  if (displayPerson) {
     return (
       <View style={styles.container}>
         <ScrollView>
@@ -106,17 +147,17 @@ function PersonDetails({
             <Image
               style={styles.image}
               source={
-                person.thumbnail
+                displayPerson.thumbnail
                   ? {
-                      uri: person.thumbnail,
+                      uri: displayPerson.thumbnail,
                     }
                   : require("../../../assets/noImage.png")
               }
             />
             <View style={styles.intro}>
-              <Text style={styles.personName}> {person.label} </Text>
+              <Text style={styles.personName}> {displayPerson.label} </Text>
               <Text style={styles.shortDescrpition}>
-                {person.termDescription}
+                {displayPerson.termDescription}
               </Text>
             </View>
           </View>
@@ -146,14 +187,14 @@ function PersonDetails({
               renderViewLess={renderViewLess}
               textStyle={{ textAlign: "left" }}
             >
-              <Text style={styles.details}>{person.openingText}</Text>
+              <Text style={styles.details}>{displayPerson.openingText}</Text>
             </ViewMoreText>
           </View>
           <HoriLine />
 
           <View>
             <Text style={styles.title}>Các thông tin liên quan: </Text>
-            {person.types.map((typeName) => (
+            {displayPerson.types.map((typeName) => (
               <TouchableOpacity
                 onPress={() => searchConcern(typeName)}
                 style={styles.textTypes}

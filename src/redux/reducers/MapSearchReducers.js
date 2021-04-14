@@ -7,17 +7,17 @@ import {
 
 const initializeState = {
   region: {
-    latitude: 21.0281465,
-    longitude: 105.7882117,
+    latitude: 21.036749800350023,
+    longitude: 105.78271411780531,
     latitudeDelta: 0.008,
     longitudeDelta: 0.008,
   },
   marker: {
-    latitude: 21.0281465,
-    longitude: 105.7882117,
+    latitude: 21.036749800350023,
+    longitude: 105.78271411780531,
   },
   streetName: "",
-  person: null,
+  person: "",
 };
 
 export default (state = initializeState, action) => {

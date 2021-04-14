@@ -15,7 +15,7 @@ function Bookmark({ bookmarkList, navigation }) {
   return (
     <View style={styles.container}>
       <View style={styles.bookmarkList}>
-        <ListPerson listPerson={bookmarkList} />
+        <ListPerson listPerson={bookmarkList} hadPerson={true} />
       </View>
 
       <View style={styles.buttonBox}>
