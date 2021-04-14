@@ -19,10 +19,9 @@ function PersonDetails({
   navigation,
 }) {
   const [isBooked, setIsBooked] = useState();
-  const [isLoaded, setLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
   const { person, personName } = route.params;
   const [displayPerson, setDisplayPerson] = useState(null);
-
   useEffect(() => {
     const getPerson = async () => {
       if (personName) {
@@ -30,14 +29,16 @@ function PersonDetails({
         try {
           const personAPI = await ontologyAPI(personName);
           setDisplayPerson(personAPI.data[0]);
+          setIsLoaded(true)
         } catch (error) {
           console.log("error when fetch person by name");
           setDisplayPerson(null);
+          setIsLoaded(true)
         }
       } else {
         //already had this person, just display
         setDisplayPerson(person);
-        setLoaded(true);
+        setIsLoaded(true);
       }
     };
     getPerson();
