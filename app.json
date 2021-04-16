@@ -4,7 +4,7 @@
     "slug": "tour-guide-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/icon-ios.png",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -18,9 +18,10 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.vnu.tour-guide-app",
+      "bundleIdentifier": "com.vnu.tourguide",
       "buildNumber": "1.0.0",
-      "infoPlist": { 
+      "icon": "./assets/icon-ios.png",	     
+       "infoPlist": { 
         "UIBackgroundModes": ["location","fetch"],
         "NSLocationWhenInUseUsageDescription": "text", 
         "NSLocationAlwaysAndWhenInUseUsageDescription": "text", 
@@ -28,7 +29,7 @@
       }
     },
     "android": {
-      "package": "com.vnu.tour-guide-app",
+      "package": "com.vnu.tourguide",
       "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
