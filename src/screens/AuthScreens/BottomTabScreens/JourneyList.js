@@ -40,7 +40,8 @@ function JourneyList({
   const [modalShare, setModalShare] = useState(false);
   const [findStatus, setFindStatus] = useState(null);
   const [friendMail, setFriendMail] = useState("");
-
+  const [friend, setFriend] = useState();
+  const [shareJourney, setShareJourney] = useState({});
   //Handle waiting to upload each file using promise
   const uploadImageAsPromise = (point, name, index) => {
     return new Promise(async function (resolve, reject) {
@@ -208,7 +209,7 @@ function JourneyList({
           <View style={styles.modalButtonBox}>
             <Button
               style={[styles.button, styles.buttonClose]}
-              // onPress={setNameJourney}
+              onPress={shareJourneyToFriend}
               title="Lưu"
             />
             <Button
@@ -237,13 +238,50 @@ function JourneyList({
         });
         if (users.length) {
           setFindStatus({ exist: true, message: "Người dùng tồn tại " });
+          const ownerEmail = firebase.auth().currentUser.email;
+          if (ownerEmail == friendMail) {
+            return setFindStatus({
+              exist: false,
+              message: "đây là email của chính bạn",
+            });
+          }
+          setFriend(users[0]);
         } else {
           setFindStatus({ exist: false, message: "Người dùng ko tồn tại" });
         }
       });
   };
 
-  const shareJourney = () => {};
+  const shareJourneyToFriend = () => {
+    const ownerEmail = firebase.auth().currentUser.email;
+    if (ownerEmail == friendMail) {
+      return setFindStatus({
+        exist: false,
+        message: "đây là email của chính bạn",
+      });
+    }
+    if (findStatus && findStatus.exist) {
+      firebase
+        .firestore()
+        .collection("journeys")
+        .doc(friend.id)
+        .collection("friendJourneys")
+        .add({
+          ownerId: firebase.auth().currentUser.uid,
+          ownerEmail,
+          journey: shareJourney.data,
+        })
+        .then(() => {
+          console.log("Shared!!");
+          setFindStatus({ exist: true, message: "Đã chia sẻ" });
+          setTimeout(() => {
+            setModalShare(!modalShare);
+          }, 1000);
+        });
+    } else {
+      setFindStatus({ exist: false, message: "Người dùng ko tồn tại" });
+    }
+  };
 
   const createTwoButtonAlert = (item) => {
     Alert.alert("Xoá hành trình", "Bạn thức sự muốn xoá ", [
@@ -295,6 +333,7 @@ function JourneyList({
             size={30}
             color={color.aqua}
             onPress={() => {
+              setShareJourney(item);
               setFindStatus(null);
               setModalShare(true);
             }}
@@ -345,8 +384,7 @@ function JourneyList({
         ) : (
           <Button title={"Lưu hành trình"} onPress={saveTripIntoFirebase} />
         )}
-
-        <Button title={"Test search "} onPress={checkEmail} />
+        <Button title={"Hành trình của người khác "} onPress={null} />
       </View>
 
       {_renderModalSetName()}
