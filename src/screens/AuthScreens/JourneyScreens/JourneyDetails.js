@@ -182,7 +182,7 @@ function JourneyDetails({ navigation, route }) {
           style={{ width: "100%" }}
           horizontal={true}
           data={streetNameSet}
-          keyExtractor={(item) => streetNameSet.indexOf("item")}
+          keyExtractor={(item) => streetNameSet.indexOf(item)}
           renderItem={renderStreetName}
         />
       </View>
