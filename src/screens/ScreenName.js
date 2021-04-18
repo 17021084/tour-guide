@@ -19,3 +19,5 @@ export const JOURNEY_TRACK_SCREEN = "Theo dõi";
 export const JOURNEY_DETAIL_SCREEN = "Hành trình";
 export const CAMERA_SCREEN = "Camera ";
 export const POST_SCREEN = "Đăng bài";
+
+export const FRIEND_JOURNEY_LIST = "Khám phá ";

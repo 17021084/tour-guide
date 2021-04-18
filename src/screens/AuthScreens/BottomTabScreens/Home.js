@@ -74,12 +74,6 @@ function Home({
             />
           ) : null}
           <ButtonIcon
-            onPress={fetchUserInfor}
-            name="my-location"
-            size={50}
-            color={color.aqua}
-          />
-          <ButtonIcon
             onPress={setMarkerToCurrentLocation}
             name="my-location"
             size={50}

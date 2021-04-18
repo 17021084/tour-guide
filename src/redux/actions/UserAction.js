@@ -89,7 +89,45 @@ export const logOut = () => {
   };
 };
 
-export const fetchFriendJourney = () => {};
+export const fetchFriendJourney = () => {
+  firebase
+    .firestore()
+    .collection("journeys")
+    .doc(firebase.auth().currentUser.uid)
+    .collection("friendJourneys")
+    .onSnapshot((snapshot) => {
+      let friendJourneys = [];
+      if (snapshot.docs.length > 0) {
+        snapshot.forEach((doc) => {
+          friendJourneys.push({
+            data: doc.data(),
+            id: doc.id,
+          });
+        });
+      }
+      console.log(friendJourneys[0].data);
+    });
+  // return (dispatch) => {
+  //   firebase
+  //     .firestore()
+  //     .collection("journeys")
+  //     .doc(firebase.auth().currentUser.uid)
+  //     .collection("friendJourneys")
+  //     .onSnapshot((snapshot) => {
+  //       let friendJourneys = [];
+  //       if (snapshot.docs.length > 0) {
+  //         snapshot.forEach((doc) => {
+  //           friendJourneys.push({
+  //             data: doc.data(),
+  //             id: doc.id,
+  //           });
+  //         });
+  //       }
+  //       console.log(friendJourneys);
+  //       console.log(snapshot);
+  //     }).catch(error=>console.log(error));
+  // };
+};
 
 export const friendJourneyFetched = () => {
   return {

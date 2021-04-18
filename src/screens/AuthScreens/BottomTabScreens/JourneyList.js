@@ -20,8 +20,9 @@ import {
   fetchJourneyList,
   saveCurrentJourney,
   deleteJourney,
+  fetchFriendJourney,
 } from "../../../redux/actions";
-import { JOURNEY_DETAIL_SCREEN } from "../../ScreenName";
+import { JOURNEY_DETAIL_SCREEN, FRIEND_JOURNEY_LIST } from "../../ScreenName";
 
 function JourneyList({
   navigation,
@@ -208,9 +209,10 @@ function JourneyList({
 
           <View style={styles.modalButtonBox}>
             <Button
+              disabled={findStatus == null ? true : false}
               style={[styles.button, styles.buttonClose]}
               onPress={shareJourneyToFriend}
-              title="Lưu"
+              title="Chia sẻ"
             />
             <Button
               style={[styles.button, styles.buttonClose]}
@@ -224,7 +226,6 @@ function JourneyList({
   );
 
   const checkEmail = () => {
-    setFindStatus(null);
     firebase
       .firestore()
       .collection("users")
@@ -384,7 +385,10 @@ function JourneyList({
         ) : (
           <Button title={"Lưu hành trình"} onPress={saveTripIntoFirebase} />
         )}
-        <Button title={"Hành trình của người khác "} onPress={null} />
+        <Button
+          title={"Khám phá"}
+          onPress={() => navigation.navigate(FRIEND_JOURNEY_LIST)}
+        />
       </View>
 
       {_renderModalSetName()}
