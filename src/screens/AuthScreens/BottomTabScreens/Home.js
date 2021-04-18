@@ -8,6 +8,7 @@ import { PERSON_DETAIL_SCREEN } from "../../ScreenName";
 import { regionSearchChange, searchStreet } from "../../../redux/actions";
 
 import { color } from "../../../config/appConfig";
+import { fetchUserInfor } from "../../../redux/actions/UserAction";
 function Home({
   navigation,
   regionSearchChange,
@@ -16,6 +17,7 @@ function Home({
   person,
   streetName,
   searchStreet,
+  userInfor,
 }) {
   const [errorMsg, setErrorMsg] = useState(null);
 
@@ -55,15 +57,10 @@ function Home({
   return (
     <View>
       <MapSearch />
+      <View style={styles.nameBox}>
+        <Text style={styles.address}> Xin chào:{userInfor.name} </Text>
+      </View>
       <View style={styles.box}>
-
-       {
-      //   <View style={styles.addressBox}>
-      //   <Text style={styles.address}> Địa chỉ:{streetName} </Text>
-      // </View>
-
-       }
-
         <View style={styles.buttonBox}>
           {person ? (
             <ButtonIcon
@@ -76,6 +73,12 @@ function Home({
               color={color.aqua}
             />
           ) : null}
+          <ButtonIcon
+            onPress={fetchUserInfor}
+            name="my-location"
+            size={50}
+            color={color.aqua}
+          />
           <ButtonIcon
             onPress={setMarkerToCurrentLocation}
             name="my-location"
@@ -95,7 +98,16 @@ function Home({
 }
 
 const styles = StyleSheet.create({
-  container: {},
+  container: { flex: 1, position: "relative" },
+  nameBox: {
+    position: "absolute",
+    // backgroundColor: "white",
+    borderRadius: 30,
+    top: 50,
+    padding: 10,
+    width: "100%",
+    margin: "auto",
+  },
   box: {
     position: "absolute",
     bottom: 80,
@@ -125,8 +137,10 @@ const mapStateToProps = (state) => {
     marker: state.searchState.marker,
     person: state.searchState.person,
     streetName: state.searchState.streetName,
+    userInfor: state.userState.userInfor,
   };
 };
+
 export default connect(mapStateToProps, {
   regionSearchChange,
   searchStreet,
