@@ -9,8 +9,6 @@ const initializeState = {
   bookmarkFetched: false,
   userInfor: {},
   userInforFetched: false,
-  friendJourney: [],
-  friendJourneyFetched: false,
 };
 
 export default (state = initializeState, action) => {

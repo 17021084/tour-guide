@@ -2,7 +2,6 @@ import * as firebase from "firebase";
 import {
   BOOKMARK_CHANGE,
   BOOKMARK_FETCHED_CHANGE,
-  FRIEND_JOURNEY_CHANGE,
   USER_INFOR_CHANGE,
   USER_INFOR_FETCHED,
 } from "./type";
@@ -86,51 +85,5 @@ export const logOut = () => {
         dispatch(userInforChange({}));
       })
       .catch((error) => console.log(error));
-  };
-};
-
-export const fetchFriendJourney = () => {
-  firebase
-    .firestore()
-    .collection("journeys")
-    .doc(firebase.auth().currentUser.uid)
-    .collection("friendJourneys")
-    .onSnapshot((snapshot) => {
-      let friendJourneys = [];
-      if (snapshot.docs.length > 0) {
-        snapshot.forEach((doc) => {
-          friendJourneys.push({
-            data: doc.data(),
-            id: doc.id,
-          });
-        });
-      }
-      console.log(friendJourneys[0].data);
-    });
-  // return (dispatch) => {
-  //   firebase
-  //     .firestore()
-  //     .collection("journeys")
-  //     .doc(firebase.auth().currentUser.uid)
-  //     .collection("friendJourneys")
-  //     .onSnapshot((snapshot) => {
-  //       let friendJourneys = [];
-  //       if (snapshot.docs.length > 0) {
-  //         snapshot.forEach((doc) => {
-  //           friendJourneys.push({
-  //             data: doc.data(),
-  //             id: doc.id,
-  //           });
-  //         });
-  //       }
-  //       console.log(friendJourneys);
-  //       console.log(snapshot);
-  //     }).catch(error=>console.log(error));
-  // };
-};
-
-export const friendJourneyFetched = () => {
-  return {
-    type: FRIEND_JOURNEY_CHANGE,
   };
 };

@@ -24,6 +24,7 @@ import {
   fetchBookmark,
   fetchUserInfor,
   fetchJourneyList,
+  fetchFriendJourney,
 } from "../../redux/actions";
 import Concern from "./Concern";
 import FriendJourney from "./FriendJourney";
@@ -38,13 +39,16 @@ function AuthScreens({
   journeyListFetched,
   userInforFetched,
   fetchUserInfor,
+  fetchFriendJourney,
+  friendJourneyFetched,
 }) {
   useEffect(() => {
     fetchBookmark();
     fetchJourneyList();
     fetchUserInfor();
+    fetchFriendJourney();
   }, []);
-  if (!bookmarkFetched || !journeyListFetched || !userInforFetched) {
+  if (!bookmarkFetched || !journeyListFetched || !userInforFetched||!friendJourneyFetched) {
     return (
       <View
         style={{ flex: 1, justifyContent: "center", alignContent: "center" }}
@@ -72,7 +76,7 @@ function AuthScreens({
           // options={{ headerShown: false }}
           options={headerOption}
         />
-        
+
         <Stack.Screen
           name={FRIEND_JOURNEY_LIST}
           component={FriendJourney}
@@ -102,6 +106,7 @@ const mapStateToProps = (state) => {
     bookmarkFetched: state.userState.bookmarkFetched,
     journeyListFetched: state.trackState.journeyListFetched,
     userInforFetched: state.userState.userInforFetched,
+    friendJourneyFetched: state.friendState.friendJourneyFetched,
   };
 };
 
@@ -109,4 +114,5 @@ export default connect(mapStateToProps, {
   fetchBookmark,
   fetchJourneyList,
   fetchUserInfor,
+  fetchFriendJourney,
 })(AuthScreens);
