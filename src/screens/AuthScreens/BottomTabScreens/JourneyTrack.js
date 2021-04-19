@@ -63,8 +63,8 @@ function JourneyTrack({
   const [newSetting, setNewSetting] = useState(trackingSetting);
   const [loaded, setLoaded] = useState(false);
   const [region, setRegion] = useState({});
- 
-  useEffect( () => {
+
+  useEffect(() => {
     const getCurrentPoistion = async () => {
       let location = await Location.getCurrentPositionAsync({});
       let { latitude, longitude } = location.coords;
@@ -190,7 +190,7 @@ function JourneyTrack({
       const streetname = filterStreetName(
         pointList[pointList.length - 1].streetName
       );
-      navigation.navigate(PERSON_DETAIL_SCREEN, { personName:streetname });
+      navigation.navigate(PERSON_DETAIL_SCREEN, { personName: streetname });
     }
   };
 
@@ -335,9 +335,9 @@ function JourneyTrack({
     navigation.navigate(CAMERA_SCREEN, { currentPosition });
   };
 
-  if (!loaded) {
-    return <ActivityIndicator size={"large"} color={color.aqua} />;
-  }
+  // if (!loaded) {
+  //   return <ActivityIndicator size={"large"} color={color.aqua} />;
+  // }
 
   return (
     <View style={styles.container}>
@@ -414,27 +414,31 @@ function JourneyTrack({
       </View>
       {_renderModalSetName()}
       <View style={{ height: "100%", position: "relative" }}>
-        <MapView style={{ flex: 1 }} region={region}>
-          {pointList.map((point) => {
-            if (pointList.indexOf(point) >= 0) {
-              return (
-                <MapView.Marker
-                  coordinate={{
-                    latitude: point.coords.latitude,
-                    longitude: point.coords.longitude,
-                  }}
-                  image={
-                    pointList.indexOf(point) == 0
-                      ? pointIcon.start
-                      : pointList.indexOf(point) == pointList.length - 1
-                      ? pointIcon.current
-                      : pointIcon.point
-                  }
-                />
-              );
-            }
-          })}
-        </MapView>
+        {!loaded ? (
+          <ActivityIndicator size={"large"} color={color.aqua} />
+        ) : (
+          <MapView style={{ flex: 1 }} region={region}>
+            {pointList.map((point) => {
+              if (pointList.indexOf(point) >= 0) {
+                return (
+                  <MapView.Marker
+                    coordinate={{
+                      latitude: point.coords.latitude,
+                      longitude: point.coords.longitude,
+                    }}
+                    image={
+                      pointList.indexOf(point) == 0
+                        ? pointIcon.start
+                        : pointList.indexOf(point) == pointList.length - 1
+                        ? pointIcon.current
+                        : pointIcon.point
+                    }
+                  />
+                );
+              }
+            })}
+          </MapView>
+        )}
       </View>
     </View>
   );
