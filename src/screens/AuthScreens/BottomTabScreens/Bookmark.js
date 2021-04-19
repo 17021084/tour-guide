@@ -6,12 +6,10 @@ import { connect } from "react-redux";
 import BookmarkCard from "../../../components/BookmarkCard";
 import ButtonBox from "../../../components/common/ButtonBox";
 import ListPerson from "../../../components/ListPerson";
+import { logOut } from "../../../redux/actions";
 import { PERSON_DETAIL_SCREEN } from "../../ScreenName";
 
-function Bookmark({ bookmarkList, navigation }) {
-  const logout = ()=>{
-    firebase.auth().signOut()
-  }
+function Bookmark({ bookmarkList, navigation, logOut }) {
   return (
     <View style={styles.container}>
       <View style={styles.bookmarkList}>
@@ -19,7 +17,7 @@ function Bookmark({ bookmarkList, navigation }) {
       </View>
 
       <View style={styles.buttonBox}>
-        <ButtonBox title="Đăng xuất" onPress={logout} />
+        <ButtonBox title="Đăng xuất" onPress={logOut} />
       </View>
     </View>
   );
@@ -30,7 +28,7 @@ const mapStateToProps = (state, ownProps) => {
     bookmarkList: state.userState.bookmark,
   };
 };
-export default connect(mapStateToProps)(Bookmark);
+export default connect(mapStateToProps, { logOut })(Bookmark);
 
 const styles = StyleSheet.create({
   container: {

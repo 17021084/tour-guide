@@ -1,5 +1,10 @@
 import * as firebase from "firebase";
-import { BOOKMARK_CHANGE, BOOKMARK_LOADED_CHANGE } from "./type";
+import {
+  BOOKMARK_CHANGE,
+  BOOKMARK_FETCHED_CHANGE,
+  USER_INFOR_CHANGE,
+  USER_INFOR_FETCHED,
+} from "./type";
 
 // fetch bookmar
 export const fetchBookmark = () => {
@@ -13,15 +18,15 @@ export const fetchBookmark = () => {
       .then((snapshot) => {
         const data = snapshot.docs.map((doc) => doc.data());
         dispatch(bookmarkChange(data));
-        dispatch(bookmarkLoaded());
+        dispatch(bookmarkFetched());
       });
   };
 };
 
-//bookmarkLoaded
-export const bookmarkLoaded = () => {
+//bookmarkFetched
+export const bookmarkFetched = () => {
   return {
-    type: BOOKMARK_LOADED_CHANGE,
+    type: BOOKMARK_FETCHED_CHANGE,
   };
 };
 
@@ -44,5 +49,41 @@ const bookmarkChange = (bookmarkList) => {
   return {
     type: BOOKMARK_CHANGE,
     payload: bookmarkList,
+  };
+};
+
+export const fetchUserInfor = () => {
+  return (dispatch) => {
+    firebase
+      .firestore()
+      .collection("users")
+      .doc(firebase.auth().currentUser.uid)
+      .get()
+      .then((snapshot) => {
+        dispatch(userInforChange(snapshot.data()));
+        dispatch({
+          type: USER_INFOR_FETCHED,
+        });
+      })
+      .catch((error) => console.log(error));
+  };
+};
+
+const userInforChange = (userInfor) => {
+  return {
+    type: USER_INFOR_CHANGE,
+    payload: userInfor,
+  };
+};
+
+export const logOut = () => {
+  return (dispatch) => {
+    firebase
+      .auth()
+      .signOut()
+      .then(() => {
+        dispatch(userInforChange({}));
+      })
+      .catch((error) => console.log(error));
   };
 };

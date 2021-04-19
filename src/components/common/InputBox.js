@@ -8,6 +8,8 @@ export default function InputBox({
   secureTextEntry = false,
   onChangeText,
   value,
+  error,
+  success,
 }) {
   return (
     <View style={styles.container}>
@@ -21,6 +23,9 @@ export default function InputBox({
         value={value}
         autoCapitalize={"none"}
       />
+      {error ?   <Text style={[styles.message,{color:'red'}]}>{error}</Text> :null}
+      {success?   <Text style={[styles.message,{color:'green'}]}>{success}</Text> :null}
+    
     </View>
   );
 }
@@ -41,5 +46,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     padding: 10,
     marginTop: 5,
+  },
+  message: {
+    paddingTop: 2,
+    fontWeight: "300",
   },
 });

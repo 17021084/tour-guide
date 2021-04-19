@@ -6,6 +6,7 @@ import {
   BOTTOM_TAB_SCREEN,
   CAMERA_SCREEN,
   CONCERN_SCREEN,
+  FRIEND_JOURNEY_LIST,
   JOURNEY_DETAIL_SCREEN,
   JOURNEY_TRACK_SCREEN,
   PERSON_DETAIL_SCREEN,
@@ -19,25 +20,35 @@ import AddPicture from "./JourneyScreens/AddPicture";
 import Post from "./JourneyScreens/Post";
 import JourneyDetails from "./JourneyScreens/JourneyDetails";
 import { connect } from "react-redux";
-import { fetchBookmark } from "../../redux/actions/UserAction";
+import {
+  fetchBookmark,
+  fetchUserInfor,
+  fetchJourneyList,
+  fetchFriendJourney,
+} from "../../redux/actions";
 import Concern from "./Concern";
-import { fetchJourneyList } from "../../redux/actions/TrackAction";
+import FriendJourney from "./FriendJourney";
 
 const Stack = createStackNavigator();
 const headerOption = { headerShown: true };
 
 function AuthScreens({
   fetchBookmark,
-  bookmarkLoaded,
+  bookmarkFetched,
   fetchJourneyList,
   journeyListFetched,
+  userInforFetched,
+  fetchUserInfor,
+  fetchFriendJourney,
+  friendJourneyFetched,
 }) {
   useEffect(() => {
     fetchBookmark();
     fetchJourneyList();
+    fetchUserInfor();
+    fetchFriendJourney();
   }, []);
-
-  if (!bookmarkLoaded || !journeyListFetched) {
+  if (!bookmarkFetched || !journeyListFetched || !userInforFetched||!friendJourneyFetched) {
     return (
       <View
         style={{ flex: 1, justifyContent: "center", alignContent: "center" }}
@@ -65,6 +76,12 @@ function AuthScreens({
           // options={{ headerShown: false }}
           options={headerOption}
         />
+
+        <Stack.Screen
+          name={FRIEND_JOURNEY_LIST}
+          component={FriendJourney}
+          options={headerOption}
+        />
         <Stack.Screen
           name={JOURNEY_DETAIL_SCREEN}
           component={JourneyDetails}
@@ -86,10 +103,16 @@ function AuthScreens({
 }
 const mapStateToProps = (state) => {
   return {
-    bookmarkLoaded: state.userState.bookmarkLoaded,
+    bookmarkFetched: state.userState.bookmarkFetched,
     journeyListFetched: state.trackState.journeyListFetched,
+    userInforFetched: state.userState.userInforFetched,
+    friendJourneyFetched: state.friendState.friendJourneyFetched,
   };
 };
-export default connect(mapStateToProps, { fetchBookmark, fetchJourneyList })(
-  AuthScreens
-);
+
+export default connect(mapStateToProps, {
+  fetchBookmark,
+  fetchJourneyList,
+  fetchUserInfor,
+  fetchFriendJourney,
+})(AuthScreens);

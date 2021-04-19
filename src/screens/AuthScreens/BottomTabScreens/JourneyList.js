@@ -1,19 +1,16 @@
 import * as firebase from "firebase";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   Button,
   StyleSheet,
   Modal,
-  Dimensions,
   Alert,
   ActivityIndicator,
+  FlatList,
 } from "react-native";
-import { FlatList, ScrollView } from "react-native-gesture-handler";
 import { connect } from "react-redux";
-import { useState } from "react/cjs/react.development";
-import { useEffect } from "react/cjs/react.production.min";
 import ButtonBox from "../../../components/common/ButtonBox";
 import ButtonIcon from "../../../components/common/ButtonIcon";
 import InputBox from "../../../components/common/InputBox";
@@ -23,8 +20,9 @@ import {
   fetchJourneyList,
   saveCurrentJourney,
   deleteJourney,
+  fetchFriendJourney,
 } from "../../../redux/actions";
-import { JOURNEY_DETAIL_SCREEN } from "../../ScreenName";
+import { JOURNEY_DETAIL_SCREEN, FRIEND_JOURNEY_LIST } from "../../ScreenName";
 
 function JourneyList({
   navigation,
@@ -40,7 +38,11 @@ function JourneyList({
   const [currentJourneyName, setCurrentJourneyName] = useState(journeyName);
   const [isSaving, setIsSaving] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-
+  const [modalShare, setModalShare] = useState(false);
+  const [findStatus, setFindStatus] = useState(null);
+  const [friendMail, setFriendMail] = useState("");
+  const [friend, setFriend] = useState();
+  const [shareJourney, setShareJourney] = useState({});
   //Handle waiting to upload each file using promise
   const uploadImageAsPromise = (point, name, index) => {
     return new Promise(async function (resolve, reject) {
@@ -168,6 +170,120 @@ function JourneyList({
     </Modal>
   );
 
+  const _renderModalShare = () => (
+    <Modal
+      animationType="fade"
+      transparent={true}
+      visible={modalShare}
+      onRequestClose={() => {
+        Alert.alert("Modal has been closed.");
+        setModalShare(!modalShare);
+      }}
+    >
+      <View style={styles.centeredView}>
+        <View style={styles.modalView}>
+          <View style={styles.inputName}>
+            <InputBox
+              onChangeText={(email) => {
+                setFindStatus(null);
+                setFriendMail(email);
+              }}
+              title={"Email của người nhận"}
+              placeholder={"Test2@gmail.com"}
+              error={
+                findStatus && !findStatus.exist ? findStatus.message : null
+              }
+              success={
+                findStatus && findStatus.exist ? findStatus.message : null
+              }
+            />
+            <View style={styles.searchButton}>
+              <ButtonIcon
+                onPress={checkEmail}
+                name={"search"}
+                color={color.aqua}
+                size={35}
+              />
+            </View>
+          </View>
+
+          <View style={styles.modalButtonBox}>
+            <Button
+              disabled={findStatus == null ? true : false}
+              style={[styles.button, styles.buttonClose]}
+              onPress={shareJourneyToFriend}
+              title="Chia sẻ"
+            />
+            <Button
+              style={[styles.button, styles.buttonClose]}
+              onPress={() => setModalShare(!modalShare)}
+              title="Huỷ"
+            />
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+
+  const checkEmail = () => {
+    firebase
+      .firestore()
+      .collection("users")
+      .where("email", "==", friendMail.trim())
+      .get()
+      .then((snapshot) => {
+        let users = snapshot.docs.map((doc) => {
+          let data = doc.data();
+          let id = doc.id;
+          return { id, ...data };
+        });
+        if (users.length) {
+          setFindStatus({ exist: true, message: "Người dùng tồn tại " });
+          const ownerEmail = firebase.auth().currentUser.email;
+          if (ownerEmail == friendMail) {
+            return setFindStatus({
+              exist: false,
+              message: "đây là email của chính bạn",
+            });
+          }
+          setFriend(users[0]);
+        } else {
+          setFindStatus({ exist: false, message: "Người dùng ko tồn tại" });
+        }
+      });
+  };
+
+  const shareJourneyToFriend = () => {
+    const ownerEmail = firebase.auth().currentUser.email;
+    if (ownerEmail == friendMail) {
+      return setFindStatus({
+        exist: false,
+        message: "đây là email của chính bạn",
+      });
+    }
+    if (findStatus && findStatus.exist) {
+      firebase
+        .firestore()
+        .collection("journeys")
+        .doc(friend.id)
+        .collection("friendJourneys")
+        .add({
+          ownerId: firebase.auth().currentUser.uid,
+          ownerEmail,
+          journey: shareJourney.data,
+        })
+        .then(() => {
+          console.log("Shared!!");
+          setFindStatus({ exist: true, message: "Đã chia sẻ" });
+          setTimeout(() => {
+            setModalShare(!modalShare);
+          }, 1000);
+        });
+    } else {
+      setFindStatus({ exist: false, message: "Người dùng ko tồn tại" });
+    }
+  };
+
   const createTwoButtonAlert = (item) => {
     Alert.alert("Xoá hành trình", "Bạn thức sự muốn xoá ", [
       {
@@ -175,7 +291,7 @@ function JourneyList({
         onPress: () => console.log("Cancel Pressed"),
         style: "cancel",
       },
-      { text: "OK", onPress: ()=> deleteJourney(item) },
+      { text: "OK", onPress: () => deleteJourney(item) },
     ]);
   };
 
@@ -206,12 +322,24 @@ function JourneyList({
             navigation.navigate(JOURNEY_DETAIL_SCREEN, { journey: item });
           }}
         />
-        <ButtonIcon
-          name={"restore-from-trash"}
-          size={30}
-          color={color.orange}
-          onPress={() => createTwoButtonAlert(item)}
-        />
+        <View style={styles.actionBox}>
+          <ButtonIcon
+            name={"restore-from-trash"}
+            size={30}
+            color={color.orange}
+            onPress={() => createTwoButtonAlert(item)}
+          />
+          <ButtonIcon
+            name={"share"}
+            size={30}
+            color={color.aqua}
+            onPress={() => {
+              setShareJourney(item);
+              setFindStatus(null);
+              setModalShare(true);
+            }}
+          />
+        </View>
       </View>
     </View>
   );
@@ -257,9 +385,14 @@ function JourneyList({
         ) : (
           <Button title={"Lưu hành trình"} onPress={saveTripIntoFirebase} />
         )}
+        <Button
+          title={"Khám phá"}
+          onPress={() => navigation.navigate(FRIEND_JOURNEY_LIST)}
+        />
       </View>
 
       {_renderModalSetName()}
+      {_renderModalShare()}
       <View style={styles.mainContainer}>
         <FlatList
           data={journeyList}
@@ -291,7 +424,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   inputName: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     height: 100,
+  },
+  searchButton: {
+    width: 50,
+    paddingTop: 40,
   },
   centeredView: {
     flex: 1,
@@ -355,4 +495,8 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   buttonDetail: {},
+  actionBox: {
+    flexDirection: "row",
+    paddingRight: 10,
+  },
 });
