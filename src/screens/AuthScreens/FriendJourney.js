@@ -109,15 +109,18 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontFamily: "open-sans-bold",
+
   },
   headerBox: {
     paddingTop: 10,
     height: 50,
     alignItems: "center",
+    borderBottomColor: color.green,
+    borderBottomWidth: 1,
   },
   journeyBox: {
-    borderTopColor: color.green,
-    borderTopWidth: 1,
+    borderBottomColor: color.green,
+    borderBottomWidth: 1,
     flexDirection: "row",
     paddingVertical: 10,
     paddingHorizontal: 10,
