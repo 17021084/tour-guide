@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Platform,
   Image,
+  ScrollView,
 } from "react-native";
 import { SIGN_UP_SCREEN } from "../ScreenName";
 import logo from "../../../assets/logo.png";
@@ -70,43 +71,45 @@ export default function SignIn({ navigation }) {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
-      <View>
-        <Image style={styles.image} source={logo} />
-      </View>
-      <Text style={styles.error}>{error}</Text>
-      <View style={styles.infor}>
-        <View style={styles.input}>
-          <InputBox
-            title="Email"
-            placeholder="test1@gmail"
-            value={data.email}
-            onChangeText={emailChange}
-          />
+      <ScrollView>
+        <View>
+          <Image style={styles.image} source={logo} />
         </View>
-        <View style={styles.input}>
-          <InputBox
-            title="Mật khẩu"
-            placeholder="6ký tự trở lên"
-            secureTextEntry={true}
-            value={data.password}
-            onChangeText={passwordChange}
-          />
-        </View>
+        <Text style={styles.error}>{error}</Text>
+        <View style={styles.infor}>
+          <View style={styles.input}>
+            <InputBox
+              title="Email"
+              placeholder="test1@gmail"
+              value={data.email}
+              onChangeText={emailChange}
+            />
+          </View>
+          <View style={styles.input}>
+            <InputBox
+              title="Mật khẩu"
+              placeholder="6ký tự trở lên"
+              secureTextEntry={true}
+              value={data.password}
+              onChangeText={passwordChange}
+            />
+          </View>
 
-        <Text style={styles.signUp}>
-          Bạn đã có tài khoản chưa ?
-          <TouchableOpacity
-            onPress={() => navigation.navigate(SIGN_UP_SCREEN)}
-            style={styles.signUpButton}
-          >
-            <Text style={styles.signUpText}> Đăng ký</Text>
-          </TouchableOpacity>
-        </Text>
+          <Text style={styles.signUp}>
+            Bạn đã có tài khoản chưa ?
+            <TouchableOpacity
+              onPress={() => navigation.navigate(SIGN_UP_SCREEN)}
+              style={styles.signUpButton}
+            >
+              <Text style={styles.signUpText}> Đăng ký</Text>
+            </TouchableOpacity>
+          </Text>
 
-        <View style={styles.button}>
-          <ButtonBox title="Đăng nhập " onPress={signIn} />
+          <View style={styles.button}>
+            <ButtonBox title="Đăng nhập " onPress={signIn} />
+          </View>
         </View>
-      </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
@@ -139,7 +142,7 @@ const styles = StyleSheet.create({
   },
   signUp: {
     marginTop: 20,
-    marginBottom: 100,
+    marginBottom: 20,
   },
   signUpButton: {
     paddingTop: 3,

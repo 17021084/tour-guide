@@ -2,7 +2,7 @@
   "expo": {
     "name": "Tour guide",
     "slug": "tour-guide-app",
-    "version": "1.0.0",
+    "version": "1.0.5",
     "orientation": "portrait",
     "icon": "./assets/icon-ios.png",
     "splash": {
@@ -34,6 +34,11 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
+      },
+      "config":{
+        "googleMaps":{
+          "apiKey":"AIzaSyCsqn7xo62urKvp4uy3ktHX5HDPzcWVjbg"
+        }
       },
       "useNextNotificationsApi": true,
       "permissions": [
