@@ -418,10 +418,11 @@ function JourneyTrack({
           <ActivityIndicator size={"large"} color={color.aqua} />
         ) : (
           <MapView style={{ flex: 1 }} region={region}>
-            {pointList.map((point) => {
-              if (pointList.indexOf(point) >= 0) {
+            {pointList.map((point , idx) => {
+              if (idx>= 0) {
                 return (
                   <MapView.Marker
+                    key={idx}
                     coordinate={{
                       latitude: point.coords.latitude,
                       longitude: point.coords.longitude,

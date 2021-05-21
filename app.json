@@ -2,9 +2,9 @@
   "expo": {
     "name": "Tour guide",
     "slug": "tour-guide-app",
-    "version": "1.0.0",
+    "version": "1.1.1",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/icon-ios.png",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -18,12 +18,16 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "infoPlist": { 
-        "UIBackgroundModes": ["location","fetch"],
-        "NSLocationWhenInUseUsageDescription": "text", 
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "text", 
-        "NSLocationAlwaysUsageDescription": "text" 
-      }
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "location",
+          "fetch"
+        ],
+        "NSLocationWhenInUseUsageDescription": "text",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "text",
+        "NSLocationAlwaysUsageDescription": "text"
+      },
+      "bundleIdentifier": "com.wannchunn.tour-guide-app"
     },
     "android": {
       "adaptiveIcon": {
@@ -40,7 +44,8 @@
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",
         "ACCESS_BACKGROUND_LOCATION"
-      ]
+      ],
+      "package": "com.wannchunn.tourguideapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"

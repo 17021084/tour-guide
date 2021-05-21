@@ -195,8 +195,9 @@ function PersonDetails({
 
           <View>
             <Text style={styles.title}>Các thông tin liên quan: </Text>
-            {displayPerson.types.map((typeName) => (
+            {displayPerson.types.map((typeName, idx) => (
               <TouchableOpacity
+              key={idx}
                 onPress={() => searchConcern(typeName)}
                 style={styles.textTypes}
               >

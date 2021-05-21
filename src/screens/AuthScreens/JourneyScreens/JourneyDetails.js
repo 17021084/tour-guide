@@ -60,16 +60,16 @@ function JourneyDetails({ navigation, route }) {
 
   const setGrow = () => {
     if (growUp) {
-      Animated.timing(growAni, {
-        toValue: 400,
-        duration: 1000,
-      }).start();
+      // Animated.timing(growAni, {
+      //   toValue: 400,
+      //   duration: 1000,
+      // }).start();
       setGrowUp(!growUp);
     } else {
-      Animated.timing(growAni, {
-        toValue: 0,
-        duration: 1000,
-      }).start();
+      // Animated.timing(growAni, {
+      //   toValue: 0,
+      //   duration: 1000,
+      // }).start();
       setGrowUp(!growUp);
     }
   };
@@ -218,11 +218,13 @@ function JourneyDetails({ navigation, route }) {
           )}
         </View>
         <Animated.View
-          style={[
+          style={growUp?
             {
-              height: growAni,
-            },
-          ]}
+              height: 400
+            }:{
+              height: 0
+            }
+          }
         >
           <FlatList
             horizontal={true}
